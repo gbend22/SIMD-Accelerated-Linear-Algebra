@@ -37,4 +37,52 @@ public class Dispatcher {
             return ScalarVectorOps.add(a, b);
         }
     }
+
+    public static float[] subtract(float[] a, float[] b) {
+        if (USE_SIMD) {
+            return SimdVectorOps.subtract(a, b);
+        } else {
+            return ScalarVectorOps.subtract(a, b);
+        }
+    }
+
+    public static float[] multiply(float[] a, float[] b) {
+        if (USE_SIMD) {
+            return SimdVectorOps.multiply(a, b);
+        } else {
+            return ScalarVectorOps.multiply(a, b);
+        }
+    }
+
+    public static float[] divide(float[] a, float[] b) {
+        if (USE_SIMD) {
+            return SimdVectorOps.divide(a, b);
+        } else {
+            return ScalarVectorOps.divide(a, b);
+        }
+    }
+
+    public static float sum(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.sum(a);
+        } else {
+            return ScalarVectorOps.sum(a);
+        }
+    }
+
+    public static float min(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.min(a);
+        } else {
+            return ScalarVectorOps.min(a);
+        }
+    }
+
+    public static float max(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.max(a);
+        } else {
+            return ScalarVectorOps.max(a);
+        }
+    }
 }

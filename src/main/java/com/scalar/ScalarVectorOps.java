@@ -48,4 +48,62 @@ public class ScalarVectorOps {
             throw new IllegalArgumentException("Vectors must have same length");
         }
     }
+
+    public static float[] subtract(float[] a, float[] b) {
+        checkSameLength(a, b);
+
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] - b[i];
+        }
+        return result;
+    }
+
+    public static float[] multiply(float[] a, float[] b) {
+        checkSameLength(a, b);
+
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] * b[i];
+        }
+        return result;
+    }
+
+    public static float[] divide(float[] a, float[] b) {
+        checkSameLength(a, b);
+
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] / b[i];
+        }
+        return result;
+    }
+
+    public static float sum(float[] a) {
+        float s = 0f;
+        for (float v : a) {
+            s += v;
+        }
+        return s;
+    }
+
+    public static float min(float[] a) {
+        if (a.length == 0) throw new IllegalArgumentException("Empty array");
+
+        float m = a[0];
+        for (int i = 1; i < a.length; i++) {
+            if (a[i] < m) m = a[i];
+        }
+        return m;
+    }
+
+    public static float max(float[] a) {
+        if (a.length == 0) throw new IllegalArgumentException("Empty array");
+
+        float m = a[0];
+        for (int i = 1; i < a.length; i++) {
+            if (a[i] > m) m = a[i];
+        }
+        return m;
+    }
 }
