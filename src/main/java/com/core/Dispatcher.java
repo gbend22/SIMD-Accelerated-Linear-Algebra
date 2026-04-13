@@ -85,4 +85,36 @@ public class Dispatcher {
             return ScalarVectorOps.max(a);
         }
     }
+
+    public static float[] scale(float[] a, float scalar) {
+        if (USE_SIMD) {
+            return SimdVectorOps.scale(a, scalar);
+        } else {
+            return ScalarVectorOps.scale(a, scalar);
+        }
+    }
+
+    public static float[] copy(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.copy(a);
+        } else {
+            return ScalarVectorOps.copy(a);
+        }
+    }
+
+    public static void fill(float[] a, float value) {
+        if (USE_SIMD) {
+            SimdVectorOps.fill(a, value);
+        } else {
+            ScalarVectorOps.fill(a, value);
+        }
+    }
+
+    public static float[] normalize(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.normalize(a);
+        } else {
+            return ScalarVectorOps.normalize(a);
+        }
+    }
 }

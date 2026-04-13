@@ -1,5 +1,7 @@
 package com.scalar;
 
+import java.util.Arrays;
+
 public class ScalarVectorOps {
     public static float dot(float[] a, float[] b) {
         checkSameLength(a, b);
@@ -105,5 +107,37 @@ public class ScalarVectorOps {
             if (a[i] > m) m = a[i];
         }
         return m;
+    }
+
+    public static float[] scale(float[] a, float scalar) {
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] * scalar;
+        }
+        return result;
+    }
+
+    public static float[] copy(float[] a) {
+        float[] result = new float[a.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        return result;
+    }
+
+    public static void fill(float[] a, float value) {
+        Arrays.fill(a, value);
+    }
+
+    public static float[] normalize(float[] a) {
+        float norm = norm(a);
+
+        if (norm == 0) {
+            throw new IllegalArgumentException("Cannot normalize zero vector");
+        }
+
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] / norm;
+        }
+        return result;
     }
 }

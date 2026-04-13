@@ -107,4 +107,50 @@ class ScalarVectorOpsTest {
         assertEquals(-1f, ScalarVectorOps.min(a), 1e-6);
         assertEquals(5f, ScalarVectorOps.max(a), 1e-6);
     }
+
+    @Test
+    void testScale() {
+        float[] a = {1, 2, 3};
+
+        assertArrayEquals(new float[]{2, 4, 6},
+                ScalarVectorOps.scale(a, 2), 1e-6f);
+    }
+
+    @Test
+    void testNormalize() {
+        float[] a = {3, 4};
+
+        float[] result = ScalarVectorOps.normalize(a);
+
+        assertEquals(1f, ScalarVectorOps.norm(result), 1e-6);
+    }
+
+    @Test
+    void testCopy() {
+        float[] original = {1, 2, 3};
+
+        float[] copy = ScalarVectorOps.copy(original);
+
+        assertArrayEquals(original, copy, 1e-6f);
+
+        assertNotSame(original, copy);
+    }
+
+    @Test
+    void testFill() {
+        float[] a = {1, 2, 3};
+
+        ScalarVectorOps.fill(a, 7);
+
+        assertArrayEquals(new float[]{7, 7, 7}, a, 1e-6f);
+    }
+
+    @Test
+    void testFillEmptyArray() {
+        float[] a = {};
+
+        ScalarVectorOps.fill(a, 5);
+
+        assertArrayEquals(new float[]{}, a, 1e-6f);
+    }
 }
