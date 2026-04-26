@@ -3,6 +3,7 @@ package com;
 import com.scalar.ScalarVectorOps;
 import com.simd.SimdVectorOps;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -97,4 +98,54 @@ class SimdCorrectnessTest {
         assertArrayEquals(ScalarVectorOps.divide(a, b), SimdVectorOps.divide(a, b), DELTA,
                 "divide mismatch at size " + size);
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
+    void sum_matchesScalar(int size) {
+        float[] a = randomVector(size);
+        assertEquals(ScalarVectorOps.sum(a), SimdVectorOps.sum(a), DELTA,
+                "sum mismatch at size " + size);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
+    void min_matchesScalar(int size) {
+        float[] a = randomVector(size);
+        assertEquals(ScalarVectorOps.min(a), SimdVectorOps.min(a), DELTA,
+                "min mismatch at size " + size);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
+    void max_matchesScalar(int size) {
+        float[] a = randomVector(size);
+        assertEquals(ScalarVectorOps.max(a), SimdVectorOps.max(a), DELTA,
+                "max mismatch at size " + size);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
+    void scale_matchesScalar(int size) {
+        float[] a = randomVector(size);
+        float scalar = 3.14f;
+        assertArrayEquals(ScalarVectorOps.scale(a, scalar), SimdVectorOps.scale(a, scalar), DELTA,
+                "scale mismatch at size " + size);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
+    void normalize_matchesScalar(int size) {
+        float[] a = randomVector(size);
+        assertArrayEquals(ScalarVectorOps.normalize(a), SimdVectorOps.normalize(a), DELTA,
+                "normalize mismatch at size " + size);
+    }
+
+    @Test
+    void normalize_resultHasUnitLength() {
+        float[] a = randomVector(1024);
+        float[] result = SimdVectorOps.normalize(a);
+        assertEquals(1f, SimdVectorOps.norm(result), DELTA,
+                "Normalized SIMD vector should have unit length");
+    }
+
 }

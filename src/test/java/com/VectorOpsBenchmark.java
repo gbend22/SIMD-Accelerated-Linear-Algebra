@@ -83,6 +83,56 @@ public class VectorOpsBenchmark {
         return SimdVectorOps.add(a, b);
     }
 
+    @Benchmark
+    public float scalar_sum() {
+        return ScalarVectorOps.sum(a);
+    }
+
+    @Benchmark
+    public float simd_sum() {
+        return SimdVectorOps.sum(a);
+    }
+
+    @Benchmark
+    public float scalar_min() {
+        return ScalarVectorOps.min(a);
+    }
+
+    @Benchmark
+    public float simd_min() {
+        return SimdVectorOps.min(a);
+    }
+
+    @Benchmark
+    public float scalar_max() {
+        return ScalarVectorOps.max(a);
+    }
+
+    @Benchmark
+    public float simd_max() {
+        return SimdVectorOps.max(a);
+    }
+
+    @Benchmark
+    public float[] scalar_scale() {
+        return ScalarVectorOps.scale(a, 2.5f);
+    }
+
+    @Benchmark
+    public float[] simd_scale() {
+        return SimdVectorOps.scale(a, 2.5f);
+    }
+
+    @Benchmark
+    public float[] scalar_normalize() {
+        return ScalarVectorOps.normalize(a);
+    }
+
+    @Benchmark
+    public float[] simd_normalize() {
+        return SimdVectorOps.normalize(a);
+    }
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(VectorOpsBenchmark.class.getSimpleName())

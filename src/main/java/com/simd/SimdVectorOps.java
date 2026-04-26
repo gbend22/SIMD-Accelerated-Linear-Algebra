@@ -4,6 +4,8 @@ import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
+import java.util.Arrays;
+
 public class SimdVectorOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
@@ -13,6 +15,10 @@ public class SimdVectorOps {
             throw new IllegalArgumentException(
                     "Vectors must have the same length, got " + a.length + " and " + b.length);
         }
+    }
+
+    private static void checkNonEmpty(float[] a) {
+        if (a.length == 0) throw new IllegalArgumentException("Array must not be empty");
     }
 
     public static float dot(float[] a, float[] b) {
@@ -139,30 +145,72 @@ public class SimdVectorOps {
     }
 
     public static float sum(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+        var acc = FloatVector.zero(SPECIES);
+        for (; i < bound; i += SPECIES.length()) {
+            acc = acc.add(FloatVector.fromArray(SPECIES, a, i));
+        }
+        float result = acc.reduceLanes(VectorOperators.ADD);
+        for (; i < a.length; i++) result += a[i];
+        return result;
     }
 
     public static float min(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        checkNonEmpty(a);
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+
+        var acc = FloatVector.broadcast(SPECIES, Float.MAX_VALUE);
+        for (; i < bound; i += SPECIES.length()) {
+            acc = acc.min(FloatVector.fromArray(SPECIES, a, i));
+        }
+        float result = acc.reduceLanes(VectorOperators.MIN);
+        for (; i < a.length; i++) result = Math.min(result, a[i]);
+        return result;
     }
 
     public static float max(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        checkNonEmpty(a);
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+
+        var acc = FloatVector.broadcast(SPECIES, -Float.MAX_VALUE);
+        for (; i < bound; i += SPECIES.length()) {
+            acc = acc.max(FloatVector.fromArray(SPECIES, a, i));
+        }
+        float result = acc.reduceLanes(VectorOperators.MAX);
+        for (; i < a.length; i++) result = Math.max(result, a[i]);
+        return result;
     }
 
     public static float[] scale(float[] a, float scalar) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        float[] result = new float[a.length];
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+        var scalarVec = FloatVector.broadcast(SPECIES, scalar);
+        for (; i < bound; i += SPECIES.length()) {
+            FloatVector.fromArray(SPECIES, a, i)
+                    .mul(scalarVec)
+                    .intoArray(result, i);
+        }
+        for (; i < a.length; i++) result[i] = a[i] * scalar;
+        return result;
     }
 
     public static float[] copy(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        float[] result = new float[a.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        return result;
     }
 
     public static void fill(float[] a, float value) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        Arrays.fill(a, value);
     }
 
     public static float[] normalize(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        float n = norm(a);
+        if (n == 0f) throw new IllegalArgumentException("Cannot normalize a zero vector");
+        return scale(a, 1f / n);
     }
 }
