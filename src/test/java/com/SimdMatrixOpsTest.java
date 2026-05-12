@@ -126,4 +126,33 @@ class SimdMatrixOpsTest {
                         + " float lanes"
         );
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {
+            1, 3, 4, 7, 8,
+            15, 16, 17,
+            32, 64
+    })
+    void matrixMultiply_matchesScalar(int size) {
+
+        float[][] a = randomMatrix(size, size);
+
+        float[][] b = randomMatrix(size, size);
+
+        float[][] scalar =
+                ScalarMatrixOps.multiply(a, b);
+
+        float[][] simd =
+                SimdMatrixOps.multiply(a, b);
+
+        for (int r = 0; r < size; r++) {
+
+            assertArrayEquals(
+                    scalar[r],
+                    simd[r],
+                    DELTA,
+                    "matrix multiply mismatch at row " + r
+            );
+        }
+    }
 }

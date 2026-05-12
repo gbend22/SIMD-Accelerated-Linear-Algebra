@@ -93,6 +93,22 @@ public class MatrixOpsBenchmark {
         );
     }
 
+    @Benchmark
+    public void scalar_matrixMultiply(Blackhole bh) {
+
+        bh.consume(
+                ScalarMatrixOps.multiply(a, b)
+        );
+    }
+
+    @Benchmark
+    public void simd_matrixMultiply(Blackhole bh) {
+
+        bh.consume(
+                SimdMatrixOps.multiply(a, b)
+        );
+    }
+
     public static void main(String[] args)
             throws RunnerException {
 

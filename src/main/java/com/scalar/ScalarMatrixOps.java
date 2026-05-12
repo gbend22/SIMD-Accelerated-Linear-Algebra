@@ -69,4 +69,38 @@ public class ScalarMatrixOps {
 
         return result;
     }
+
+    public static float[][] multiply(
+            float[][] a,
+            float[][] b
+    ) {
+
+        if (a[0].length != b.length) {
+            throw new IllegalArgumentException(
+                    "Matrix dimensions do not allow multiplication"
+            );
+        }
+
+        int rows = a.length;
+        int cols = b[0].length;
+        int inner = b.length;
+
+        float[][] result = new float[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                float sum = 0f;
+
+                for (int k = 0; k < inner; k++) {
+                    sum += a[i][k] * b[k][j];
+                }
+
+                result[i][j] = sum;
+            }
+        }
+
+        return result;
+    }
 }

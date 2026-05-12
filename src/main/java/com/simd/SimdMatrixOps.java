@@ -104,6 +104,84 @@ public class SimdMatrixOps {
         return result;
     }
 
+    public static float[][] transpose(float[][] matrix) {
+
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        float[][] result = new float[cols][rows];
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                result[j][i] = matrix[i][j];
+            }
+        }
+
+        return result;
+    }
+
+    public static float[][] multiply(
+            float[][] a,
+            float[][] b
+    ) {
+
+        if (a[0].length != b.length) {
+            throw new IllegalArgumentException(
+                    "Matrix dimensions do not allow multiplication"
+            );
+        }
+
+        int rows = a.length;
+        int cols = b[0].length;
+        int inner = b.length;
+
+        float[][] result = new float[rows][cols];
+
+        float[][] bTransposed = transpose(b);
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                int k = 0;
+
+                int bound = SPECIES.loopBound(inner);
+
+                var acc = FloatVector.zero(SPECIES);
+
+                for (; k < bound; k += SPECIES.length()) {
+
+                    var va = FloatVector.fromArray(
+                            SPECIES,
+                            a[i],
+                            k
+                    );
+
+                    var vb = FloatVector.fromArray(
+                            SPECIES,
+                            bTransposed[j],
+                            k
+                    );
+
+                    acc = va.fma(vb, acc);
+                }
+
+                float sum =
+                        acc.reduceLanes(VectorOperators.ADD);
+
+                for (; k < inner; k++) {
+                    sum += a[i][k] * bTransposed[j][k];
+                }
+
+                result[i][j] = sum;
+            }
+        }
+
+        return result;
+    }
+
     public static int simdWidth() {
         return SPECIES.length();
     }
