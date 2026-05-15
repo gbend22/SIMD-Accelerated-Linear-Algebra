@@ -1,10 +1,11 @@
 package com.vector;
 
 import com.core.Dispatcher;
-import com.scalar.ScalarVectorOps;
-import com.simd.SimdVectorOps;
 
 public class VectorOps {
+
+    private VectorOps() {}
+
     public static float dot(float[] a, float[] b) {
         return Dispatcher.dot(a, b);
     }
@@ -22,42 +23,42 @@ public class VectorOps {
     }
 
     public static float[] subtract(float[] a, float[] b) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.subtract(a, b);
     }
 
     public static float[] multiply(float[] a, float[] b) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.multiply(a, b);
     }
 
     public static float[] divide(float[] a, float[] b) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.divide(a, b);
     }
 
     public static float sum(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.sum(a);
     }
 
     public static float min(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.min(a);
     }
 
     public static float max(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.max(a);
     }
 
     public static float[] scale(float[] a, float scalar) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.scale(a, scalar);
     }
 
     public static float[] copy(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.copy(a);
     }
 
     public static void fill(float[] a, float value) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        Dispatcher.fill(a, value);
     }
 
     public static float[] normalize(float[] a) {
-        throw  new UnsupportedOperationException("Not supported yet.");
+        return Dispatcher.normalize(a);
     }
 }
