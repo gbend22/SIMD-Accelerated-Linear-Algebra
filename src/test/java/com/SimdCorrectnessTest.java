@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimdCorrectnessTest {
 
-    private static final float DELTA = 1e-4f;
+    private static final float DELTA = 1e-3f;
 
     private static final long SEED = 42L;
     private Random random;

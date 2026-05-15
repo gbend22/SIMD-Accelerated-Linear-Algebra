@@ -4,7 +4,33 @@ import com.scalar.ScalarVectorOps;
 import com.simd.SimdVectorOps;
 
 public class Dispatcher {
-    private static final boolean USE_SIMD = false;
+
+    private static final boolean USE_SIMD;
+
+    static {
+
+        int width = SimdVectorOps.simdWidth();
+
+        USE_SIMD = width >= 4;
+
+        if (USE_SIMD) {
+            System.out.println(
+                    "[SimdLinalg] SIMD enabled with "
+                            + width +
+                            " float lanes"
+            );
+        } else {
+            System.out.println(
+                    "[SimdLinalg] SIMD unavailable, falling back to scalar backend"
+            );
+        }
+    }
+
+    public static boolean useSimd() {
+        return USE_SIMD;
+    }
+
+    private Dispatcher() {}
 
     public static float dot(float[] a, float[] b) {
         if (USE_SIMD) {

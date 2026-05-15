@@ -213,4 +213,8 @@ public class SimdVectorOps {
         if (n == 0f) throw new IllegalArgumentException("Cannot normalize a zero vector");
         return scale(a, 1f / n);
     }
+
+    public static int simdWidth() {
+        return SPECIES.length();
+    }
 }
