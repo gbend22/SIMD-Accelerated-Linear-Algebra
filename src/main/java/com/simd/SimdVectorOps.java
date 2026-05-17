@@ -214,6 +214,79 @@ public class SimdVectorOps {
         return scale(a, 1f / n);
     }
 
+    public static float euclideanDistance(float[] a, float[] b) {
+        checkSameLength(a, b);
+
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+        var acc = FloatVector.zero(SPECIES);
+
+        for (; i < bound; i += SPECIES.length()) {
+            var diff = FloatVector.fromArray(SPECIES, a, i)
+                    .sub(FloatVector.fromArray(SPECIES, b, i));
+            acc = diff.fma(diff, acc);
+        }
+
+        float result = acc.reduceLanes(VectorOperators.ADD);
+        for (; i < a.length; i++) {
+            float diff = a[i] - b[i];
+            result += diff * diff;
+        }
+        return (float) Math.sqrt(result);
+    }
+
+    public static float[] fma(float[] a, float[] b, float[] c) {
+        checkSameLength(a, b);
+        checkSameLength(a, c);
+
+        float[] result = new float[a.length];
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+
+        for (; i < bound; i += SPECIES.length()) {
+            FloatVector.fromArray(SPECIES, a, i)
+                    .fma(FloatVector.fromArray(SPECIES, b, i),
+                         FloatVector.fromArray(SPECIES, c, i))
+                    .intoArray(result, i);
+        }
+
+        for (; i < a.length; i++) result[i] = Math.fma(a[i], b[i], c[i]);
+
+        return result;
+    }
+
+    public static int argmax(float[] a) {
+        checkNonEmpty(a);
+
+        float maxVal = max(a);
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] == maxVal) return i;
+        }
+        return 0;
+    }
+
+    public static float[] softmax(float[] a) {
+        checkNonEmpty(a);
+
+        float maxVal = max(a);
+        var maxVec = FloatVector.broadcast(SPECIES, maxVal);
+
+        float[] result = new float[a.length];
+        int i = 0;
+        int bound = SPECIES.loopBound(a.length);
+
+        for (; i < bound; i += SPECIES.length()) {
+            FloatVector.fromArray(SPECIES, a, i)
+                    .sub(maxVec)
+                    .lanewise(VectorOperators.EXP)
+                    .intoArray(result, i);
+        }
+        for (; i < a.length; i++) result[i] = (float) Math.exp(a[i] - maxVal);
+
+        float total = sum(result);
+        return scale(result, 1f / total);
+    }
+
     public static int simdWidth() {
         return SPECIES.length();
     }

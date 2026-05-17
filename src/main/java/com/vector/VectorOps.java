@@ -61,4 +61,20 @@ public class VectorOps {
     public static float[] normalize(float[] a) {
         return Dispatcher.normalize(a);
     }
+
+    public static float euclideanDistance(float[] a, float[] b) {
+        return Dispatcher.euclideanDistance(a, b);
+    }
+
+    public static float[] fma(float[] a, float[] b, float[] c) {
+        return Dispatcher.fma(a, b, c);
+    }
+
+    public static int argmax(float[] a) {
+        return Dispatcher.argmax(a);
+    }
+
+    public static float[] softmax(float[] a) {
+        return Dispatcher.softmax(a);
+    }
 }

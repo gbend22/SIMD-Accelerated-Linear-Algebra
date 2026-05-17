@@ -143,4 +143,36 @@ public class Dispatcher {
             return ScalarVectorOps.normalize(a);
         }
     }
+
+    public static float euclideanDistance(float[] a, float[] b) {
+        if (USE_SIMD) {
+            return SimdVectorOps.euclideanDistance(a, b);
+        } else {
+            return ScalarVectorOps.euclideanDistance(a, b);
+        }
+    }
+
+    public static float[] fma(float[] a, float[] b, float[] c) {
+        if (USE_SIMD) {
+            return SimdVectorOps.fma(a, b, c);
+        } else {
+            return ScalarVectorOps.fma(a, b, c);
+        }
+    }
+
+    public static int argmax(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.argmax(a);
+        } else {
+            return ScalarVectorOps.argmax(a);
+        }
+    }
+
+    public static float[] softmax(float[] a) {
+        if (USE_SIMD) {
+            return SimdVectorOps.softmax(a);
+        } else {
+            return ScalarVectorOps.softmax(a);
+        }
+    }
 }

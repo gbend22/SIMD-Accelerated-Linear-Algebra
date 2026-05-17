@@ -140,4 +140,56 @@ public class ScalarVectorOps {
         }
         return result;
     }
+
+    public static float euclideanDistance(float[] a, float[] b) {
+        checkSameLength(a, b);
+
+        float sum = 0f;
+        for (int i = 0; i < a.length; i++) {
+            float diff = a[i] - b[i];
+            sum += diff * diff;
+        }
+        return (float) Math.sqrt(sum);
+    }
+
+    public static float[] fma(float[] a, float[] b, float[] c) {
+        checkSameLength(a, b);
+        checkSameLength(a, c);
+
+        float[] result = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = Math.fma(a[i], b[i], c[i]);
+        }
+        return result;
+    }
+
+    public static int argmax(float[] a) {
+        if (a.length == 0) throw new IllegalArgumentException("Empty array");
+
+        int idx = 0;
+        float m = a[0];
+        for (int i = 1; i < a.length; i++) {
+            if (a[i] > m) {
+                m = a[i];
+                idx = i;
+            }
+        }
+        return idx;
+    }
+
+    public static float[] softmax(float[] a) {
+        if (a.length == 0) throw new IllegalArgumentException("Empty array");
+
+        float maxVal = max(a);
+        float[] result = new float[a.length];
+        float sum = 0f;
+        for (int i = 0; i < a.length; i++) {
+            result[i] = (float) Math.exp(a[i] - maxVal);
+            sum += result[i];
+        }
+        for (int i = 0; i < a.length; i++) {
+            result[i] /= sum;
+        }
+        return result;
+    }
 }
