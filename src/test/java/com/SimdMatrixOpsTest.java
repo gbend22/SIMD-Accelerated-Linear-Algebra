@@ -64,13 +64,13 @@ class SimdMatrixOpsTest {
         float[] vector = randomVector(size);
 
         float[] scalar =
-                ScalarMatrixOps.multiplyMatrixVector(
+                ScalarMatrixOps.multiply(
                         matrix,
                         vector
                 );
 
         float[] simd =
-                SimdMatrixOps.multiplyMatrixVector(
+                SimdMatrixOps.multiply(
                         matrix,
                         vector
                 );

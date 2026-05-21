@@ -59,7 +59,7 @@ public class MatrixOpsBenchmark {
     public void scalar_matrixVectorMultiply(Blackhole bh) {
 
         bh.consume(
-                ScalarMatrixOps.multiplyMatrixVector(
+                ScalarMatrixOps.multiply(
                         a,
                         vector
                 )
@@ -70,7 +70,7 @@ public class MatrixOpsBenchmark {
     public void simd_matrixVectorMultiply(Blackhole bh) {
 
         bh.consume(
-                SimdMatrixOps.multiplyMatrixVector(
+                SimdMatrixOps.multiply(
                         a,
                         vector
                 )

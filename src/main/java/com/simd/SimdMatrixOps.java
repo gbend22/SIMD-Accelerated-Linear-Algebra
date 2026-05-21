@@ -4,6 +4,8 @@ import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
+import static com.scalar.ScalarMatrixOps.transpose;
+
 public class SimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES =
@@ -20,7 +22,7 @@ public class SimdMatrixOps {
         }
     }
 
-    public static float[] multiplyMatrixVector(
+    public static float[] multiply(
             float[][] matrix,
             float[] vector
     ) {
@@ -98,24 +100,6 @@ public class SimdMatrixOps {
 
             for (; i < cols; i++) {
                 result[r][i] = a[r][i] + b[r][i];
-            }
-        }
-
-        return result;
-    }
-
-    public static float[][] transpose(float[][] matrix) {
-
-        int rows = matrix.length;
-        int cols = matrix[0].length;
-
-        float[][] result = new float[cols][rows];
-
-        for (int i = 0; i < rows; i++) {
-
-            for (int j = 0; j < cols; j++) {
-
-                result[j][i] = matrix[i][j];
             }
         }
 

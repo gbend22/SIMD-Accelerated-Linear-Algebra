@@ -9,7 +9,7 @@ public class ScalarMatrixOps {
         }
     }
 
-    public static float[] multiplyMatrixVector(float[][] matrix, float[] vector) {
+    public static float[] multiply(float[][] matrix, float[] vector) {
 
         int rows = matrix.length;
         int cols = matrix[0].length;

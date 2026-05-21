@@ -26,7 +26,7 @@ class ScalarMatrixOpsTest {
 
         assertArrayEquals(
                 expected,
-                ScalarMatrixOps.multiplyMatrixVector(matrix, vector)
+                ScalarMatrixOps.multiply(matrix, vector)
         );
     }
 

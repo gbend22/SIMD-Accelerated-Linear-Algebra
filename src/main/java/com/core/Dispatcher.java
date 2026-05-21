@@ -1,6 +1,8 @@
 package com.core;
 
+import com.scalar.ScalarMatrixOps;
 import com.scalar.ScalarVectorOps;
+import com.simd.SimdMatrixOps;
 import com.simd.SimdVectorOps;
 
 public class Dispatcher {
@@ -174,5 +176,27 @@ public class Dispatcher {
         } else {
             return ScalarVectorOps.softmax(a);
         }
+    }
+
+    public static float[][] add(float[][] a, float[][] b) {
+        return USE_SIMD
+                ? SimdMatrixOps.add(a, b)
+                : ScalarMatrixOps.add(a, b);
+    }
+
+    public static float[] multiply(float[][] matrix, float[] vector) {
+        return USE_SIMD
+                ? SimdMatrixOps.multiply(matrix, vector)
+                : ScalarMatrixOps.multiply(matrix, vector);
+    }
+
+    public static float[][] multiply(float[][] a, float[][] b) {
+        return USE_SIMD
+                ? SimdMatrixOps.multiply(a, b)
+                : ScalarMatrixOps.multiply(a, b);
+    }
+
+    public static float[][] transpose(float[][] matrix) {
+        return ScalarMatrixOps.transpose(matrix);
     }
 }
