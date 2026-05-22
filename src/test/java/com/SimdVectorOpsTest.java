@@ -12,7 +12,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class SimdCorrectnessTest {
+class SimdVectorOpsTest {
 
     private static final float DELTA = 1e-3f;
 
@@ -146,6 +146,92 @@ class SimdCorrectnessTest {
         float[] result = SimdVectorOps.normalize(a);
         assertEquals(1f, SimdVectorOps.norm(result), DELTA,
                 "Normalized SIMD vector should have unit length");
+    }
+
+    @Test
+    void dot_withNaN_returnsNaN() {
+        float[] a = {1f, Float.NaN};
+        float[] b = {2f, 3f};
+
+        assertTrue(Float.isNaN(SimdVectorOps.dot(a, b)));
+    }
+
+    @Test
+    void norm_withNaN_returnsNaN() {
+        float[] a = {1f, Float.NaN};
+
+        assertTrue(Float.isNaN(SimdVectorOps.norm(a)));
+    }
+
+    @Test
+    void sum_withInfinity_returnsInfinity() {
+        float[] a = {1f, Float.POSITIVE_INFINITY};
+
+        assertEquals(Float.POSITIVE_INFINITY, SimdVectorOps.sum(a));
+    }
+
+    @Test
+    void multiply_withInfinity_behavesCorrectly() {
+        float[] a = {2f, Float.POSITIVE_INFINITY};
+        float[] b = {3f, 2f};
+
+        float[] result = SimdVectorOps.multiply(a, b);
+
+        assertEquals(6f, result[0], DELTA);
+        assertEquals(Float.POSITIVE_INFINITY, result[1]);
+    }
+
+    @Test
+    void normalize_zeroVector_throwsException() {
+        float[] a = new float[16];
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SimdVectorOps.normalize(a)
+        );
+    }
+
+    @Test
+    void cosine_zeroVector_throwsException() {
+        float[] a = new float[16];
+        float[] b = randomVector(16);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SimdVectorOps.cosineSimilarity(a, b)
+        );
+    }
+
+    @Test
+    void dot_mismatchedLengths_throwsException() {
+        float[] a = new float[8];
+        float[] b = new float[16];
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SimdVectorOps.dot(a, b)
+        );
+    }
+
+    @Test
+    void add_mismatchedLengths_throwsException() {
+        float[] a = new float[8];
+        float[] b = new float[16];
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SimdVectorOps.add(a, b)
+        );
+    }
+
+    @Test
+    void dot_largeValues_doesNotCrash() {
+        float[] a = {1e10f, 1e10f};
+        float[] b = {1e10f, 1e10f};
+
+        float result = SimdVectorOps.dot(a, b);
+
+        assertTrue(Float.isFinite(result) || Float.isInfinite(result));
     }
 
 }

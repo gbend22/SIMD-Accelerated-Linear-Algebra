@@ -19,14 +19,18 @@
     </properties>
 
     <dependencies>
-        <!-- JMH core benchmark framework -->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
         </dependency>
 
-        <!-- JMH annotation processor — generates benchmark boilerplate at compile time -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
@@ -34,7 +38,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -52,7 +55,6 @@
     <build>
         <plugins>
 
-            <!-- Compiler: pass -add-modules so the incubator Vector API is visible -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -67,7 +69,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire: pass the module flag to the JVM that runs tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -77,12 +78,6 @@
                 </configuration>
             </plugin>
 
-            <!--
-                Shade plugin: bundles everything into a single fat JAR.
-                Run benchmarks with:
-                  mvn package -DskipTests
-                  java - -add-modules jdk.incubator.vector -jar target/simd-linalg-1.0-SNAPSHOT-benchmarks.jar
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

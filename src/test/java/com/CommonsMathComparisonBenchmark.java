@@ -1,11 +1,8 @@
 package com;
 
 import com.simd.SimdVectorOps;
-
-import org.ejml.simple.SimpleMatrix;
-
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -14,19 +11,18 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-@BenchmarkMode(Mode.AverageTime)
+@BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 @State(Scope.Thread)
 @Fork(
         value = 2,
         jvmArgs = {
-                "--add-modules", "jdk.incubator.vector",
-                "-XX:+UseVectorCmov"
+                "--add-modules", "jdk.incubator.vector"
         }
 )
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-public class EJMLComparisonBenchmark {
+public class CommonsMathComparisonBenchmark {
 
     @Param({"16", "64", "256", "1024", "4096", "16384"})
     public int size;
@@ -34,8 +30,11 @@ public class EJMLComparisonBenchmark {
     private float[] a;
     private float[] b;
 
-    private SimpleMatrix ejmlA;
-    private SimpleMatrix ejmlB;
+    private double[] da;
+    private double[] db;
+
+    private ArrayRealVector va;
+    private ArrayRealVector vb;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -44,19 +43,22 @@ public class EJMLComparisonBenchmark {
         a = new float[size];
         b = new float[size];
 
-        double[][] da = new double[size][1];
-        double[][] db = new double[size][1];
+        da = new double[size];
+        db = new double[size];
 
         for (int i = 0; i < size; i++) {
-            a[i] = rng.nextFloat() * 2f - 1f;
-            b[i] = rng.nextFloat() * 2f - 1f;
+            float x = rng.nextFloat() * 2f - 1f;
+            float y = rng.nextFloat() * 2f - 1f;
 
-            da[i][0] = a[i];
-            db[i][0] = b[i];
+            a[i] = x;
+            b[i] = y;
+
+            da[i] = x;
+            db[i] = y;
         }
 
-        ejmlA = new SimpleMatrix(da);
-        ejmlB = new SimpleMatrix(db);
+        va = new ArrayRealVector(da);
+        vb = new ArrayRealVector(db);
     }
 
     @Benchmark
@@ -65,8 +67,8 @@ public class EJMLComparisonBenchmark {
     }
 
     @Benchmark
-    public double ejml_dot() {
-        return ejmlA.dot(ejmlB);
+    public double commons_dot() {
+        return va.dotProduct(vb);
     }
 
     @Benchmark
@@ -75,23 +77,24 @@ public class EJMLComparisonBenchmark {
     }
 
     @Benchmark
-    public double ejml_norm() {
-        return ejmlA.normF();
+    public double commons_norm() {
+        return va.getNorm();
     }
 
     @Benchmark
-    public void simd_add(Blackhole bh) {
-        bh.consume(SimdVectorOps.add(a, b));
+    public float[] simd_add() {
+        return SimdVectorOps.add(a, b);
     }
 
     @Benchmark
-    public void ejml_add(Blackhole bh) {
-        bh.consume(ejmlA.plus(ejmlB));
+    public double[] commons_add() {
+        return va.add(vb).toArray();
     }
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(EJMLComparisonBenchmark.class.getSimpleName())
+                .include(CommonsMathComparisonBenchmark.class.getSimpleName())
+                .forks(1)
                 .build();
 
         new Runner(opt).run();

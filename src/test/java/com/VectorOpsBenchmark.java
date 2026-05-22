@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 public class VectorOpsBenchmark {
 
-    @Param({"64", "256", "1024", "4096"})
+    @Param({"16", "64", "256", "1024", "4096", "16384"})
     public int size;
 
     private float[] a;
