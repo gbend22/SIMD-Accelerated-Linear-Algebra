@@ -4,7 +4,6 @@ import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
-import static com.scalar.ScalarMatrixOps.transpose;
 
 public class SimdMatrixOps {
 
@@ -160,6 +159,51 @@ public class SimdMatrixOps {
                 }
 
                 result[i][j] = sum;
+            }
+        }
+
+        return result;
+    }
+
+    public static float[][] transpose(float[][] matrix) {
+
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        float[][] result = new float[cols][rows];
+
+        final int BLOCK = 32;
+
+        for (int ii = 0; ii < rows; ii += BLOCK) {
+
+            for (int jj = 0; jj < cols; jj += BLOCK) {
+
+                int iMax = Math.min(ii + BLOCK, rows);
+                int jMax = Math.min(jj + BLOCK, cols);
+
+                for (int i = ii; i < iMax; i++) {
+
+                    int j = jj;
+
+                    int bound = SPECIES.loopBound(jMax - jj) + jj;
+
+                    for (; j < bound; j += SPECIES.length()) {
+
+                        FloatVector vec =
+                                FloatVector.fromArray(SPECIES, matrix[i], j);
+
+                        float[] temp = new float[SPECIES.length()];
+                        vec.intoArray(temp, 0);
+
+                        for (int k = 0; k < SPECIES.length(); k++) {
+                            result[j + k][i] = temp[k];
+                        }
+                    }
+
+                    for (; j < jMax; j++) {
+                        result[j][i] = matrix[i][j];
+                    }
+                }
             }
         }
 

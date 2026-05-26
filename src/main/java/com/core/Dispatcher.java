@@ -5,7 +5,11 @@ import com.scalar.ScalarVectorOps;
 import com.simd.SimdMatrixOps;
 import com.simd.SimdVectorOps;
 
+import java.util.logging.Logger;
+
 public class Dispatcher {
+
+    private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());
 
     private static final boolean USE_SIMD;
 
@@ -16,13 +20,13 @@ public class Dispatcher {
         USE_SIMD = width >= 4;
 
         if (USE_SIMD) {
-            System.out.println(
+            LOGGER.info(
                     "[SimdLinalg] SIMD enabled with "
                             + width +
                             " float lanes"
             );
         } else {
-            System.out.println(
+            LOGGER.info(
                     "[SimdLinalg] SIMD unavailable, falling back to scalar backend"
             );
         }
@@ -179,24 +183,34 @@ public class Dispatcher {
     }
 
     public static float[][] add(float[][] a, float[][] b) {
-        return USE_SIMD
-                ? SimdMatrixOps.add(a, b)
-                : ScalarMatrixOps.add(a, b);
+        if (USE_SIMD) {
+            return SimdMatrixOps.add(a, b);
+        } else {
+            return ScalarMatrixOps.add(a, b);
+        }
     }
 
     public static float[] multiply(float[][] matrix, float[] vector) {
-        return USE_SIMD
-                ? SimdMatrixOps.multiply(matrix, vector)
-                : ScalarMatrixOps.multiply(matrix, vector);
+        if (USE_SIMD) {
+            return SimdMatrixOps.multiply(matrix, vector);
+        } else {
+            return ScalarMatrixOps.multiply(matrix, vector);
+        }
     }
 
     public static float[][] multiply(float[][] a, float[][] b) {
-        return USE_SIMD
-                ? SimdMatrixOps.multiply(a, b)
-                : ScalarMatrixOps.multiply(a, b);
+        if (USE_SIMD) {
+            return SimdMatrixOps.multiply(a, b);
+        } else {
+            return ScalarMatrixOps.multiply(a, b);
+        }
     }
 
     public static float[][] transpose(float[][] matrix) {
-        return ScalarMatrixOps.transpose(matrix);
+        if (USE_SIMD) {
+            return SimdMatrixOps.transpose(matrix);
+        } else {
+            return ScalarMatrixOps.transpose(matrix);
+        }
     }
 }
