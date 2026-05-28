@@ -17,6 +17,10 @@ class SimdVectorOpsTest {
     private static final float DELTA = 1e-3f;
 
     private static final long SEED = 42L;
+
+    private static final ScalarVectorOps scalar = new ScalarVectorOps();
+    private static final SimdVectorOps simd = new SimdVectorOps();
+
     private Random random;
 
     @BeforeEach
@@ -41,7 +45,7 @@ class SimdVectorOpsTest {
     void dot_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomVector(size);
-        assertEquals(ScalarVectorOps.dot(a, b), SimdVectorOps.dot(a, b), DELTA,
+        assertEquals(scalar.dot(a, b), simd.dot(a, b), DELTA,
                 "dot mismatch at size " + size);
     }
 
@@ -49,7 +53,7 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 15, 16, 17, 64, 255, 256, 257, 1024, 4096})
     void norm_matchesScalar(int size) {
         float[] a = randomVector(size);
-        assertEquals(ScalarVectorOps.norm(a), SimdVectorOps.norm(a), DELTA,
+        assertEquals(scalar.norm(a), simd.norm(a), DELTA,
                 "norm mismatch at size " + size);
     }
 
@@ -58,8 +62,8 @@ class SimdVectorOpsTest {
     void cosine_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomVector(size);
-        assertEquals(ScalarVectorOps.cosineSimilarity(a, b),
-                SimdVectorOps.cosineSimilarity(a, b), DELTA,
+        assertEquals(scalar.cosineSimilarity(a, b),
+                simd.cosineSimilarity(a, b), DELTA,
                 "cosine mismatch at size " + size);
     }
 
@@ -68,7 +72,7 @@ class SimdVectorOpsTest {
     void add_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomVector(size);
-        assertArrayEquals(ScalarVectorOps.add(a, b), SimdVectorOps.add(a, b), DELTA,
+        assertArrayEquals(scalar.add(a, b), simd.add(a, b), DELTA,
                 "add mismatch at size " + size);
     }
 
@@ -77,7 +81,7 @@ class SimdVectorOpsTest {
     void subtract_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomVector(size);
-        assertArrayEquals(ScalarVectorOps.subtract(a, b), SimdVectorOps.subtract(a, b), DELTA,
+        assertArrayEquals(scalar.subtract(a, b), simd.subtract(a, b), DELTA,
                 "subtract mismatch at size " + size);
     }
 
@@ -86,7 +90,7 @@ class SimdVectorOpsTest {
     void multiply_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomVector(size);
-        assertArrayEquals(ScalarVectorOps.multiply(a, b), SimdVectorOps.multiply(a, b), DELTA,
+        assertArrayEquals(scalar.multiply(a, b), simd.multiply(a, b), DELTA,
                 "multiply mismatch at size " + size);
     }
 
@@ -95,7 +99,7 @@ class SimdVectorOpsTest {
     void divide_matchesScalar(int size) {
         float[] a = randomVector(size);
         float[] b = randomPositiveVector(size);
-        assertArrayEquals(ScalarVectorOps.divide(a, b), SimdVectorOps.divide(a, b), DELTA,
+        assertArrayEquals(scalar.divide(a, b), simd.divide(a, b), DELTA,
                 "divide mismatch at size " + size);
     }
 
@@ -103,7 +107,7 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
     void sum_matchesScalar(int size) {
         float[] a = randomVector(size);
-        assertEquals(ScalarVectorOps.sum(a), SimdVectorOps.sum(a), DELTA,
+        assertEquals(scalar.sum(a), simd.sum(a), DELTA,
                 "sum mismatch at size " + size);
     }
 
@@ -111,7 +115,7 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
     void min_matchesScalar(int size) {
         float[] a = randomVector(size);
-        assertEquals(ScalarVectorOps.min(a), SimdVectorOps.min(a), DELTA,
+        assertEquals(scalar.min(a), simd.min(a), DELTA,
                 "min mismatch at size " + size);
     }
 
@@ -119,7 +123,7 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
     void max_matchesScalar(int size) {
         float[] a = randomVector(size);
-        assertEquals(ScalarVectorOps.max(a), SimdVectorOps.max(a), DELTA,
+        assertEquals(scalar.max(a), simd.max(a), DELTA,
                 "max mismatch at size " + size);
     }
 
@@ -127,8 +131,8 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
     void scale_matchesScalar(int size) {
         float[] a = randomVector(size);
-        float scalar = 3.14f;
-        assertArrayEquals(ScalarVectorOps.scale(a, scalar), SimdVectorOps.scale(a, scalar), DELTA,
+        float sc = 3.14f;
+        assertArrayEquals(scalar.scale(a, sc), simd.scale(a, sc), DELTA,
                 "scale mismatch at size " + size);
     }
 
@@ -136,15 +140,15 @@ class SimdVectorOpsTest {
     @ValueSource(ints = {1, 4, 7, 8, 9, 16, 64, 256, 1024})
     void normalize_matchesScalar(int size) {
         float[] a = randomVector(size);
-        assertArrayEquals(ScalarVectorOps.normalize(a), SimdVectorOps.normalize(a), DELTA,
+        assertArrayEquals(scalar.normalize(a), simd.normalize(a), DELTA,
                 "normalize mismatch at size " + size);
     }
 
     @Test
     void normalize_resultHasUnitLength() {
         float[] a = randomVector(1024);
-        float[] result = SimdVectorOps.normalize(a);
-        assertEquals(1f, SimdVectorOps.norm(result), DELTA,
+        float[] result = simd.normalize(a);
+        assertEquals(1f, simd.norm(result), DELTA,
                 "Normalized SIMD vector should have unit length");
     }
 
@@ -153,21 +157,21 @@ class SimdVectorOpsTest {
         float[] a = {1f, Float.NaN};
         float[] b = {2f, 3f};
 
-        assertTrue(Float.isNaN(SimdVectorOps.dot(a, b)));
+        assertTrue(Float.isNaN(simd.dot(a, b)));
     }
 
     @Test
     void norm_withNaN_returnsNaN() {
         float[] a = {1f, Float.NaN};
 
-        assertTrue(Float.isNaN(SimdVectorOps.norm(a)));
+        assertTrue(Float.isNaN(simd.norm(a)));
     }
 
     @Test
     void sum_withInfinity_returnsInfinity() {
         float[] a = {1f, Float.POSITIVE_INFINITY};
 
-        assertEquals(Float.POSITIVE_INFINITY, SimdVectorOps.sum(a));
+        assertEquals(Float.POSITIVE_INFINITY, simd.sum(a));
     }
 
     @Test
@@ -175,7 +179,7 @@ class SimdVectorOpsTest {
         float[] a = {2f, Float.POSITIVE_INFINITY};
         float[] b = {3f, 2f};
 
-        float[] result = SimdVectorOps.multiply(a, b);
+        float[] result = simd.multiply(a, b);
 
         assertEquals(6f, result[0], DELTA);
         assertEquals(Float.POSITIVE_INFINITY, result[1]);
@@ -187,7 +191,7 @@ class SimdVectorOpsTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SimdVectorOps.normalize(a)
+                () -> simd.normalize(a)
         );
     }
 
@@ -198,7 +202,7 @@ class SimdVectorOpsTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SimdVectorOps.cosineSimilarity(a, b)
+                () -> simd.cosineSimilarity(a, b)
         );
     }
 
@@ -209,7 +213,7 @@ class SimdVectorOpsTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SimdVectorOps.dot(a, b)
+                () -> simd.dot(a, b)
         );
     }
 
@@ -220,7 +224,7 @@ class SimdVectorOpsTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> SimdVectorOps.add(a, b)
+                () -> simd.add(a, b)
         );
     }
 
@@ -229,7 +233,7 @@ class SimdVectorOpsTest {
         float[] a = {1e10f, 1e10f};
         float[] b = {1e10f, 1e10f};
 
-        float result = SimdVectorOps.dot(a, b);
+        float result = simd.dot(a, b);
 
         assertTrue(Float.isFinite(result) || Float.isInfinite(result));
     }

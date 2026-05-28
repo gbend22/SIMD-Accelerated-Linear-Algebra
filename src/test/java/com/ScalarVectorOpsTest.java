@@ -7,12 +7,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScalarVectorOpsTest {
 
+    private final ScalarVectorOps ops = new ScalarVectorOps();
+
     @Test
     void testDotProduct() {
         float[] a = {1, 2, 3};
         float[] b = {4, 5, 6};
 
-        float result = ScalarVectorOps.dot(a, b);
+        float result = ops.dot(a, b);
 
         assertEquals(32f, result, 1e-6);
     }
@@ -21,7 +23,7 @@ class ScalarVectorOpsTest {
     void testNorm() {
         float[] a = {3, 4};
 
-        float result = ScalarVectorOps.norm(a);
+        float result = ops.norm(a);
 
         assertEquals(5f, result, 1e-6);
     }
@@ -31,7 +33,7 @@ class ScalarVectorOpsTest {
         float[] a = {1, 0};
         float[] b = {0, 1};
 
-        float result = ScalarVectorOps.cosineSimilarity(a, b);
+        float result = ops.cosineSimilarity(a, b);
 
         assertEquals(0f, result, 1e-6);
     }
@@ -41,7 +43,7 @@ class ScalarVectorOpsTest {
         float[] a = {1, 2, 3};
         float[] b = {4, 5, 6};
 
-        float[] result = ScalarVectorOps.add(a, b);
+        float[] result = ops.add(a, b);
 
         assertArrayEquals(new float[]{5, 7, 9}, result, 1e-6f);
     }
@@ -52,7 +54,7 @@ class ScalarVectorOpsTest {
         float[] b = {1};
 
         assertThrows(IllegalArgumentException.class,
-                () -> ScalarVectorOps.dot(a, b));
+                () -> ops.dot(a, b));
     }
 
     @Test
@@ -61,9 +63,9 @@ class ScalarVectorOpsTest {
         float[] b = {1, 3};
 
         assertThrows(IllegalArgumentException.class,
-                () -> ScalarVectorOps.cosineSimilarity(a, b));
+                () -> ops.cosineSimilarity(a, b));
         assertThrows(IllegalArgumentException.class,
-                () -> ScalarVectorOps.cosineSimilarity(b, a));
+                () -> ops.cosineSimilarity(b, a));
     }
 
     @Test
@@ -72,7 +74,7 @@ class ScalarVectorOpsTest {
         float[] b = {1, 2, 3};
 
         assertArrayEquals(new float[]{4, 5, 6},
-                ScalarVectorOps.subtract(a, b), 1e-6f);
+                ops.subtract(a, b), 1e-6f);
     }
 
     @Test
@@ -81,7 +83,7 @@ class ScalarVectorOpsTest {
         float[] b = {4, 5, 6};
 
         assertArrayEquals(new float[]{4, 10, 18},
-                ScalarVectorOps.multiply(a, b), 1e-6f);
+                ops.multiply(a, b), 1e-6f);
     }
 
     @Test
@@ -90,22 +92,22 @@ class ScalarVectorOpsTest {
         float[] b = {2, 5, 3};
 
         assertArrayEquals(new float[]{2, 3, 9},
-                ScalarVectorOps.divide(a, b), 1e-6f);
+                ops.divide(a, b), 1e-6f);
     }
 
     @Test
     void testSum() {
         float[] a = {1, 2, 3};
 
-        assertEquals(6f, ScalarVectorOps.sum(a), 1e-6);
+        assertEquals(6f, ops.sum(a), 1e-6);
     }
 
     @Test
     void testMinMax() {
         float[] a = {3, -1, 5, 2};
 
-        assertEquals(-1f, ScalarVectorOps.min(a), 1e-6);
-        assertEquals(5f, ScalarVectorOps.max(a), 1e-6);
+        assertEquals(-1f, ops.min(a), 1e-6);
+        assertEquals(5f, ops.max(a), 1e-6);
     }
 
     @Test
@@ -113,23 +115,23 @@ class ScalarVectorOpsTest {
         float[] a = {1, 2, 3};
 
         assertArrayEquals(new float[]{2, 4, 6},
-                ScalarVectorOps.scale(a, 2), 1e-6f);
+                ops.scale(a, 2), 1e-6f);
     }
 
     @Test
     void testNormalize() {
         float[] a = {3, 4};
 
-        float[] result = ScalarVectorOps.normalize(a);
+        float[] result = ops.normalize(a);
 
-        assertEquals(1f, ScalarVectorOps.norm(result), 1e-6);
+        assertEquals(1f, ops.norm(result), 1e-6);
     }
 
     @Test
     void testCopy() {
         float[] original = {1, 2, 3};
 
-        float[] copy = ScalarVectorOps.copy(original);
+        float[] copy = ops.copy(original);
 
         assertArrayEquals(original, copy, 1e-6f);
 
@@ -140,7 +142,7 @@ class ScalarVectorOpsTest {
     void testFill() {
         float[] a = {1, 2, 3};
 
-        ScalarVectorOps.fill(a, 7);
+        ops.fill(a, 7);
 
         assertArrayEquals(new float[]{7, 7, 7}, a, 1e-6f);
     }
@@ -149,7 +151,7 @@ class ScalarVectorOpsTest {
     void testFillEmptyArray() {
         float[] a = {};
 
-        ScalarVectorOps.fill(a, 5);
+        ops.fill(a, 5);
 
         assertArrayEquals(new float[]{}, a, 1e-6f);
     }

@@ -1,12 +1,13 @@
 package com.simd;
 
+import com.core.VectorBackend;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
 import java.util.Arrays;
 
-public class SimdVectorOps {
+public class SimdVectorOps implements VectorBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
 
@@ -21,7 +22,8 @@ public class SimdVectorOps {
         if (a.length == 0) throw new IllegalArgumentException("Array must not be empty");
     }
 
-    public static float dot(float[] a, float[] b) {
+    @Override
+    public float dot(float[] a, float[] b) {
         checkSameLength(a, b);
 
         int i = 0;
@@ -41,7 +43,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float norm(float[] a) {
+    @Override
+    public float norm(float[] a) {
         int i = 0;
         int bound = SPECIES.loopBound(a.length);
         var acc = FloatVector.zero(SPECIES);
@@ -58,7 +61,8 @@ public class SimdVectorOps {
         return (float) Math.sqrt(result);
     }
 
-    public static float cosineSimilarity(float[] a, float[] b) {
+    @Override
+    public float cosineSimilarity(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float dot = dot(a, b);
@@ -72,7 +76,8 @@ public class SimdVectorOps {
         return dot / (normA * normB);
     }
 
-    public static float[] add(float[] a, float[] b) {
+    @Override
+    public float[] add(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -90,7 +95,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float[] subtract(float[] a, float[] b) {
+    @Override
+    public float[] subtract(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -108,7 +114,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float[] multiply(float[] a, float[] b) {
+    @Override
+    public float[] multiply(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -126,7 +133,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float[] divide(float[] a, float[] b) {
+    @Override
+    public float[] divide(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -144,7 +152,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float sum(float[] a) {
+    @Override
+    public float sum(float[] a) {
         int i = 0;
         int bound = SPECIES.loopBound(a.length);
         var acc = FloatVector.zero(SPECIES);
@@ -156,7 +165,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float min(float[] a) {
+    @Override
+    public float min(float[] a) {
         checkNonEmpty(a);
         int i = 0;
         int bound = SPECIES.loopBound(a.length);
@@ -170,7 +180,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float max(float[] a) {
+    @Override
+    public float max(float[] a) {
         checkNonEmpty(a);
         int i = 0;
         int bound = SPECIES.loopBound(a.length);
@@ -184,7 +195,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float[] scale(float[] a, float scalar) {
+    @Override
+    public float[] scale(float[] a, float scalar) {
         float[] result = new float[a.length];
         int i = 0;
         int bound = SPECIES.loopBound(a.length);
@@ -198,23 +210,27 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static float[] copy(float[] a) {
+    @Override
+    public float[] copy(float[] a) {
         float[] result = new float[a.length];
         System.arraycopy(a, 0, result, 0, a.length);
         return result;
     }
 
-    public static void fill(float[] a, float value) {
+    @Override
+    public void fill(float[] a, float value) {
         Arrays.fill(a, value);
     }
 
-    public static float[] normalize(float[] a) {
+    @Override
+    public float[] normalize(float[] a) {
         float n = norm(a);
         if (n == 0f) throw new IllegalArgumentException("Cannot normalize a zero vector");
         return scale(a, 1f / n);
     }
 
-    public static float euclideanDistance(float[] a, float[] b) {
+    @Override
+    public float euclideanDistance(float[] a, float[] b) {
         checkSameLength(a, b);
 
         int i = 0;
@@ -235,7 +251,8 @@ public class SimdVectorOps {
         return (float) Math.sqrt(result);
     }
 
-    public static float[] fma(float[] a, float[] b, float[] c) {
+    @Override
+    public float[] fma(float[] a, float[] b, float[] c) {
         checkSameLength(a, b);
         checkSameLength(a, c);
 
@@ -255,7 +272,8 @@ public class SimdVectorOps {
         return result;
     }
 
-    public static int argmax(float[] a) {
+    @Override
+    public int argmax(float[] a) {
         checkNonEmpty(a);
 
         float maxVal = max(a);
@@ -265,7 +283,8 @@ public class SimdVectorOps {
         return 0;
     }
 
-    public static float[] softmax(float[] a) {
+    @Override
+    public float[] softmax(float[] a) {
         checkNonEmpty(a);
 
         float maxVal = max(a);

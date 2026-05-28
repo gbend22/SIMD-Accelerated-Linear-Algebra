@@ -31,6 +31,8 @@ public class EJMLComparisonBenchmark {
     @Param({"16", "64", "256", "1024", "4096", "16384"})
     public int size;
 
+    private final SimdVectorOps simd = new SimdVectorOps();
+
     private float[] a;
     private float[] b;
 
@@ -61,7 +63,7 @@ public class EJMLComparisonBenchmark {
 
     @Benchmark
     public float simd_dot() {
-        return SimdVectorOps.dot(a, b);
+        return simd.dot(a, b);
     }
 
     @Benchmark
@@ -71,7 +73,7 @@ public class EJMLComparisonBenchmark {
 
     @Benchmark
     public float simd_norm() {
-        return SimdVectorOps.norm(a);
+        return simd.norm(a);
     }
 
     @Benchmark
@@ -81,7 +83,7 @@ public class EJMLComparisonBenchmark {
 
     @Benchmark
     public void simd_add(Blackhole bh) {
-        bh.consume(SimdVectorOps.add(a, b));
+        bh.consume(simd.add(a, b));
     }
 
     @Benchmark

@@ -27,11 +27,10 @@ public class CommonsMathComparisonBenchmark {
     @Param({"16", "64", "256", "1024", "4096", "16384"})
     public int size;
 
+    private final SimdVectorOps simd = new SimdVectorOps();
+
     private float[] a;
     private float[] b;
-
-    private double[] da;
-    private double[] db;
 
     private ArrayRealVector va;
     private ArrayRealVector vb;
@@ -43,8 +42,8 @@ public class CommonsMathComparisonBenchmark {
         a = new float[size];
         b = new float[size];
 
-        da = new double[size];
-        db = new double[size];
+        double[] da = new double[size];
+        double[] db = new double[size];
 
         for (int i = 0; i < size; i++) {
             float x = rng.nextFloat() * 2f - 1f;
@@ -63,7 +62,7 @@ public class CommonsMathComparisonBenchmark {
 
     @Benchmark
     public float simd_dot() {
-        return SimdVectorOps.dot(a, b);
+        return simd.dot(a, b);
     }
 
     @Benchmark
@@ -73,7 +72,7 @@ public class CommonsMathComparisonBenchmark {
 
     @Benchmark
     public float simd_norm() {
-        return SimdVectorOps.norm(a);
+        return simd.norm(a);
     }
 
     @Benchmark
@@ -83,7 +82,7 @@ public class CommonsMathComparisonBenchmark {
 
     @Benchmark
     public float[] simd_add() {
-        return SimdVectorOps.add(a, b);
+        return simd.add(a, b);
     }
 
     @Benchmark

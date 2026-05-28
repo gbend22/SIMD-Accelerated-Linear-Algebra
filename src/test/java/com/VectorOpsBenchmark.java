@@ -29,6 +29,9 @@ public class VectorOpsBenchmark {
     @Param({"16", "64", "256", "1024", "4096", "16384"})
     public int size;
 
+    private final ScalarVectorOps scalar = new ScalarVectorOps();
+    private final SimdVectorOps simd = new SimdVectorOps();
+
     private float[] a;
     private float[] b;
 
@@ -45,92 +48,92 @@ public class VectorOpsBenchmark {
 
     @Benchmark
     public float scalar_dot() {
-        return ScalarVectorOps.dot(a, b);
+        return scalar.dot(a, b);
     }
 
     @Benchmark
     public float simd_dot() {
-        return SimdVectorOps.dot(a, b);
+        return simd.dot(a, b);
     }
 
     @Benchmark
     public float scalar_norm() {
-        return ScalarVectorOps.norm(a);
+        return scalar.norm(a);
     }
 
     @Benchmark
     public float simd_norm() {
-        return SimdVectorOps.norm(a);
+        return simd.norm(a);
     }
 
     @Benchmark
     public float scalar_cosine() {
-        return ScalarVectorOps.cosineSimilarity(a, b);
+        return scalar.cosineSimilarity(a, b);
     }
 
     @Benchmark
     public float simd_cosine() {
-        return SimdVectorOps.cosineSimilarity(a, b);
+        return simd.cosineSimilarity(a, b);
     }
 
     @Benchmark
     public float[] scalar_add() {
-        return ScalarVectorOps.add(a, b);
+        return scalar.add(a, b);
     }
 
     @Benchmark
     public float[] simd_add() {
-        return SimdVectorOps.add(a, b);
+        return simd.add(a, b);
     }
 
     @Benchmark
     public float scalar_sum() {
-        return ScalarVectorOps.sum(a);
+        return scalar.sum(a);
     }
 
     @Benchmark
     public float simd_sum() {
-        return SimdVectorOps.sum(a);
+        return simd.sum(a);
     }
 
     @Benchmark
     public float scalar_min() {
-        return ScalarVectorOps.min(a);
+        return scalar.min(a);
     }
 
     @Benchmark
     public float simd_min() {
-        return SimdVectorOps.min(a);
+        return simd.min(a);
     }
 
     @Benchmark
     public float scalar_max() {
-        return ScalarVectorOps.max(a);
+        return scalar.max(a);
     }
 
     @Benchmark
     public float simd_max() {
-        return SimdVectorOps.max(a);
+        return simd.max(a);
     }
 
     @Benchmark
     public float[] scalar_scale() {
-        return ScalarVectorOps.scale(a, 2.5f);
+        return scalar.scale(a, 2.5f);
     }
 
     @Benchmark
     public float[] simd_scale() {
-        return SimdVectorOps.scale(a, 2.5f);
+        return simd.scale(a, 2.5f);
     }
 
     @Benchmark
     public float[] scalar_normalize() {
-        return ScalarVectorOps.normalize(a);
+        return scalar.normalize(a);
     }
 
     @Benchmark
     public float[] simd_normalize() {
-        return SimdVectorOps.normalize(a);
+        return simd.normalize(a);
     }
 
     public static void main(String[] args) throws RunnerException {

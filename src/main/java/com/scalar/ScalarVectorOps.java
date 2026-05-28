@@ -1,9 +1,12 @@
 package com.scalar;
 
+import com.core.VectorBackend;
 import java.util.Arrays;
 
-public class ScalarVectorOps {
-    public static float dot(float[] a, float[] b) {
+public class ScalarVectorOps implements VectorBackend {
+
+    @Override
+    public float dot(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float sum = 0f;
@@ -13,7 +16,8 @@ public class ScalarVectorOps {
         return sum;
     }
 
-    public static float norm(float[] a) {
+    @Override
+    public float norm(float[] a) {
         float sum = 0f;
         for (float v : a) {
             sum += v * v;
@@ -21,7 +25,8 @@ public class ScalarVectorOps {
         return (float) Math.sqrt(sum);
     }
 
-    public static float cosineSimilarity(float[] a, float[] b) {
+    @Override
+    public float cosineSimilarity(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float dot = dot(a, b);
@@ -35,7 +40,8 @@ public class ScalarVectorOps {
         return dot / (normA * normB);
     }
 
-    public static float[] add(float[] a, float[] b) {
+    @Override
+    public float[] add(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -51,7 +57,8 @@ public class ScalarVectorOps {
         }
     }
 
-    public static float[] subtract(float[] a, float[] b) {
+    @Override
+    public float[] subtract(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -61,7 +68,8 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static float[] multiply(float[] a, float[] b) {
+    @Override
+    public float[] multiply(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -71,7 +79,8 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static float[] divide(float[] a, float[] b) {
+    @Override
+    public float[] divide(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float[] result = new float[a.length];
@@ -81,7 +90,8 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static float sum(float[] a) {
+    @Override
+    public float sum(float[] a) {
         float s = 0f;
         for (float v : a) {
             s += v;
@@ -89,7 +99,8 @@ public class ScalarVectorOps {
         return s;
     }
 
-    public static float min(float[] a) {
+    @Override
+    public float min(float[] a) {
         if (a.length == 0) throw new IllegalArgumentException("Empty array");
 
         float m = a[0];
@@ -99,7 +110,8 @@ public class ScalarVectorOps {
         return m;
     }
 
-    public static float max(float[] a) {
+    @Override
+    public float max(float[] a) {
         if (a.length == 0) throw new IllegalArgumentException("Empty array");
 
         float m = a[0];
@@ -109,7 +121,8 @@ public class ScalarVectorOps {
         return m;
     }
 
-    public static float[] scale(float[] a, float scalar) {
+    @Override
+    public float[] scale(float[] a, float scalar) {
         float[] result = new float[a.length];
         for (int i = 0; i < a.length; i++) {
             result[i] = a[i] * scalar;
@@ -117,17 +130,20 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static float[] copy(float[] a) {
+    @Override
+    public float[] copy(float[] a) {
         float[] result = new float[a.length];
         System.arraycopy(a, 0, result, 0, a.length);
         return result;
     }
 
-    public static void fill(float[] a, float value) {
+    @Override
+    public void fill(float[] a, float value) {
         Arrays.fill(a, value);
     }
 
-    public static float[] normalize(float[] a) {
+    @Override
+    public float[] normalize(float[] a) {
         float norm = norm(a);
 
         if (norm == 0) {
@@ -141,7 +157,8 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static float euclideanDistance(float[] a, float[] b) {
+    @Override
+    public float euclideanDistance(float[] a, float[] b) {
         checkSameLength(a, b);
 
         float sum = 0f;
@@ -152,7 +169,8 @@ public class ScalarVectorOps {
         return (float) Math.sqrt(sum);
     }
 
-    public static float[] fma(float[] a, float[] b, float[] c) {
+    @Override
+    public float[] fma(float[] a, float[] b, float[] c) {
         checkSameLength(a, b);
         checkSameLength(a, c);
 
@@ -163,7 +181,8 @@ public class ScalarVectorOps {
         return result;
     }
 
-    public static int argmax(float[] a) {
+    @Override
+    public int argmax(float[] a) {
         if (a.length == 0) throw new IllegalArgumentException("Empty array");
 
         int idx = 0;
@@ -177,7 +196,8 @@ public class ScalarVectorOps {
         return idx;
     }
 
-    public static float[] softmax(float[] a) {
+    @Override
+    public float[] softmax(float[] a) {
         if (a.length == 0) throw new IllegalArgumentException("Empty array");
 
         float maxVal = max(a);
