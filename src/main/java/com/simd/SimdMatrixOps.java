@@ -1,31 +1,23 @@
 package com.simd;
 
+import com.core.MatrixBackend;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
 
-public class SimdMatrixOps {
+public class SimdMatrixOps implements MatrixBackend {
 
-    private static final VectorSpecies<Float> SPECIES =
-            FloatVector.SPECIES_PREFERRED;
+    private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
 
     private static void checkSameDimensions(float[][] a, float[][] b) {
-
-        if (a.length != b.length ||
-                a[0].length != b[0].length) {
-
-            throw new IllegalArgumentException(
-                    "Matrix dimensions must match"
-            );
+        if (a.length != b.length || a[0].length != b[0].length) {
+            throw new IllegalArgumentException("Matrix dimensions must match");
         }
     }
 
-    public static float[] multiply(
-            float[][] matrix,
-            float[] vector
-    ) {
-
+    @Override
+    public float[] multiply(float[][] matrix, float[] vector) {
         int rows = matrix.length;
         int cols = matrix[0].length;
 
@@ -45,19 +37,8 @@ public class SimdMatrixOps {
             var acc = FloatVector.zero(SPECIES);
 
             for (; i < bound; i += SPECIES.length()) {
-
-                var vm = FloatVector.fromArray(
-                        SPECIES,
-                        matrix[r],
-                        i
-                );
-
-                var vv = FloatVector.fromArray(
-                        SPECIES,
-                        vector,
-                        i
-                );
-
+                var vm = FloatVector.fromArray(SPECIES, matrix[r], i);
+                var vv = FloatVector.fromArray(SPECIES, vector, i);
                 acc = vm.fma(vv, acc);
             }
 
@@ -73,11 +54,8 @@ public class SimdMatrixOps {
         return result;
     }
 
-    public static float[][] add(
-            float[][] a,
-            float[][] b
-    ) {
-
+    @Override
+    public float[][] add(float[][] a, float[][] b) {
         checkSameDimensions(a, b);
 
         int rows = a.length;
@@ -105,15 +83,10 @@ public class SimdMatrixOps {
         return result;
     }
 
-    public static float[][] multiply(
-            float[][] a,
-            float[][] b
-    ) {
-
+    @Override
+    public float[][] multiply(float[][] a, float[][] b) {
         if (a[0].length != b.length) {
-            throw new IllegalArgumentException(
-                    "Matrix dimensions do not allow multiplication"
-            );
+            throw new IllegalArgumentException("Matrix dimensions do not allow multiplication");
         }
 
         int rows = a.length;
@@ -135,25 +108,12 @@ public class SimdMatrixOps {
                 var acc = FloatVector.zero(SPECIES);
 
                 for (; k < bound; k += SPECIES.length()) {
-
-                    var va = FloatVector.fromArray(
-                            SPECIES,
-                            a[i],
-                            k
-                    );
-
-                    var vb = FloatVector.fromArray(
-                            SPECIES,
-                            bTransposed[j],
-                            k
-                    );
-
+                    var va = FloatVector.fromArray(SPECIES, a[i], k);
+                    var vb = FloatVector.fromArray(SPECIES, bTransposed[j], k);
                     acc = va.fma(vb, acc);
                 }
 
-                float sum =
-                        acc.reduceLanes(VectorOperators.ADD);
-
+                float sum = acc.reduceLanes(VectorOperators.ADD);
                 for (; k < inner; k++) {
                     sum += a[i][k] * bTransposed[j][k];
                 }
@@ -165,8 +125,8 @@ public class SimdMatrixOps {
         return result;
     }
 
-    public static float[][] transpose(float[][] matrix) {
-
+    @Override
+    public float[][] transpose(float[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
 
@@ -188,10 +148,7 @@ public class SimdMatrixOps {
                     int bound = SPECIES.loopBound(jMax - jj) + jj;
 
                     for (; j < bound; j += SPECIES.length()) {
-
-                        FloatVector vec =
-                                FloatVector.fromArray(SPECIES, matrix[i], j);
-
+                        FloatVector vec = FloatVector.fromArray(SPECIES, matrix[i], j);
                         float[] temp = new float[SPECIES.length()];
                         vec.intoArray(temp, 0);
 

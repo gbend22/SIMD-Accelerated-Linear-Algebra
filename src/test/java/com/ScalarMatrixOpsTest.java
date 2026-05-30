@@ -9,6 +9,8 @@ class ScalarMatrixOpsTest {
 
     private static final float DELTA = 1e-3f;
 
+    private final ScalarMatrixOps scalar = new ScalarMatrixOps();
+
     @Test
     void multiplyMatrixVector_2x3() {
 
@@ -26,7 +28,7 @@ class ScalarMatrixOpsTest {
 
         assertArrayEquals(
                 expected,
-                ScalarMatrixOps.multiply(matrix, vector)
+                scalar.multiply(matrix, vector)
         );
     }
 
@@ -43,7 +45,7 @@ class ScalarMatrixOpsTest {
                 {30, 40}
         };
 
-        float[][] result = ScalarMatrixOps.add(a, b);
+        float[][] result = scalar.add(a, b);
 
         assertArrayEquals(new float[]{11, 22}, result[0]);
         assertArrayEquals(new float[]{33, 44}, result[1]);
@@ -57,7 +59,7 @@ class ScalarMatrixOpsTest {
                 {4, 5, 6}
         };
 
-        float[][] result = ScalarMatrixOps.transpose(matrix);
+        float[][] result = scalar.transpose(matrix);
 
         assertArrayEquals(new float[]{1, 4}, result[0]);
         assertArrayEquals(new float[]{2, 5}, result[1]);
@@ -98,7 +100,7 @@ class ScalarMatrixOpsTest {
         };
 
         float[][] result =
-                ScalarMatrixOps.multiply(a, b);
+                scalar.multiply(a, b);
 
         assertMatrixEquals(expected, result);
     }

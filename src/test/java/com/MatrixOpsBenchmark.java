@@ -30,6 +30,9 @@ public class MatrixOpsBenchmark {
     @Param({"64", "128", "256", "512"})
     public int size;
 
+    private final ScalarMatrixOps scalar = new ScalarMatrixOps();
+    private final SimdMatrixOps simd = new SimdMatrixOps();
+
     private float[][] a;
     private float[][] b;
     private float[] vector;
@@ -59,7 +62,7 @@ public class MatrixOpsBenchmark {
     public void scalar_matrixVectorMultiply(Blackhole bh) {
 
         bh.consume(
-                ScalarMatrixOps.multiply(
+                scalar.multiply(
                         a,
                         vector
                 )
@@ -70,7 +73,7 @@ public class MatrixOpsBenchmark {
     public void simd_matrixVectorMultiply(Blackhole bh) {
 
         bh.consume(
-                SimdMatrixOps.multiply(
+                simd.multiply(
                         a,
                         vector
                 )
@@ -81,7 +84,7 @@ public class MatrixOpsBenchmark {
     public void scalar_add(Blackhole bh) {
 
         bh.consume(
-                ScalarMatrixOps.add(a, b)
+                scalar.add(a, b)
         );
     }
 
@@ -89,7 +92,7 @@ public class MatrixOpsBenchmark {
     public void simd_add(Blackhole bh) {
 
         bh.consume(
-                SimdMatrixOps.add(a, b)
+                simd.add(a, b)
         );
     }
 
@@ -97,7 +100,7 @@ public class MatrixOpsBenchmark {
     public void scalar_matrixMultiply(Blackhole bh) {
 
         bh.consume(
-                ScalarMatrixOps.multiply(a, b)
+                scalar.multiply(a, b)
         );
     }
 
@@ -105,7 +108,7 @@ public class MatrixOpsBenchmark {
     public void simd_matrixMultiply(Blackhole bh) {
 
         bh.consume(
-                SimdMatrixOps.multiply(a, b)
+                simd.multiply(a, b)
         );
     }
 

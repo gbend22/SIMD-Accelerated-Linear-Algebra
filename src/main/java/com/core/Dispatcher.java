@@ -11,21 +11,22 @@ public class Dispatcher {
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());
 
-    private static final boolean USE_SIMD;
     private static final VectorBackend VECTOR_BACKEND;
+    private static final MatrixBackend MATRIX_BACKEND;
 
     static {
 
         int width = SimdVectorOps.simdWidth();
+        boolean useSIMD = width >= 4;
 
-        USE_SIMD = width >= 4;
-
-        if (USE_SIMD) {
+        if (useSIMD) {
             LOGGER.info("[SimdLinalg] SIMD enabled with " + width + " float lanes");
             VECTOR_BACKEND = new SimdVectorOps();
+            MATRIX_BACKEND = new SimdMatrixOps();
         } else {
             LOGGER.info("[SimdLinalg] SIMD unavailable, falling back to scalar backend");
             VECTOR_BACKEND = new ScalarVectorOps();
+            MATRIX_BACKEND = new ScalarMatrixOps();
         }
     }
 
@@ -104,34 +105,18 @@ public class Dispatcher {
     }
 
     public static float[][] add(float[][] a, float[][] b) {
-        if (USE_SIMD) {
-            return SimdMatrixOps.add(a, b);
-        } else {
-            return ScalarMatrixOps.add(a, b);
-        }
+        return MATRIX_BACKEND.add(a, b);
     }
 
     public static float[] multiply(float[][] matrix, float[] vector) {
-        if (USE_SIMD) {
-            return SimdMatrixOps.multiply(matrix, vector);
-        } else {
-            return ScalarMatrixOps.multiply(matrix, vector);
-        }
+        return MATRIX_BACKEND.multiply(matrix, vector);
     }
 
     public static float[][] multiply(float[][] a, float[][] b) {
-        if (USE_SIMD) {
-            return SimdMatrixOps.multiply(a, b);
-        } else {
-            return ScalarMatrixOps.multiply(a, b);
-        }
+        return MATRIX_BACKEND.multiply(a, b);
     }
 
     public static float[][] transpose(float[][] matrix) {
-        if (USE_SIMD) {
-            return SimdMatrixOps.transpose(matrix);
-        } else {
-            return ScalarMatrixOps.transpose(matrix);
-        }
+        return MATRIX_BACKEND.transpose(matrix);
     }
 }

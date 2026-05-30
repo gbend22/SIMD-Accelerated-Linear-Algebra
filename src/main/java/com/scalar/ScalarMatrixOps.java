@@ -1,6 +1,8 @@
 package com.scalar;
 
-public class ScalarMatrixOps {
+import com.core.MatrixBackend;
+
+public class ScalarMatrixOps implements MatrixBackend {
 
     private static void checkSameDimensions(float[][] a, float[][] b) {
 
@@ -9,8 +11,8 @@ public class ScalarMatrixOps {
         }
     }
 
-    public static float[] multiply(float[][] matrix, float[] vector) {
-
+    @Override
+    public float[] multiply(float[][] matrix, float[] vector) {
         int rows = matrix.length;
         int cols = matrix[0].length;
 
@@ -36,8 +38,8 @@ public class ScalarMatrixOps {
         return result;
     }
 
-    public static float[][] add(float[][] a, float[][] b) {
-
+    @Override
+    public float[][] add(float[][] a, float[][] b) {
         checkSameDimensions(a, b);
 
         int rows = a.length;
@@ -54,8 +56,8 @@ public class ScalarMatrixOps {
         return result;
     }
 
-    public static float[][] transpose(float[][] matrix) {
-
+    @Override
+    public float[][] transpose(float[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
 
@@ -70,11 +72,8 @@ public class ScalarMatrixOps {
         return result;
     }
 
-    public static float[][] multiply(
-            float[][] a,
-            float[][] b
-    ) {
-
+    @Override
+    public float[][] multiply(float[][] a, float[][] b) {
         if (a[0].length != b.length) {
             throw new IllegalArgumentException(
                     "Matrix dimensions do not allow multiplication"

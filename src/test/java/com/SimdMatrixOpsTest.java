@@ -15,8 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class SimdMatrixOpsTest {
 
     private static final float DELTA = 1e-3f;
-
     private static final long SEED = 42L;
+
+    private final ScalarMatrixOps scalarOps = new ScalarMatrixOps();
+    private final SimdMatrixOps simdOps = new SimdMatrixOps();
 
     private Random random;
 
@@ -64,13 +66,13 @@ class SimdMatrixOpsTest {
         float[] vector = randomVector(size);
 
         float[] scalar =
-                ScalarMatrixOps.multiply(
+                scalarOps.multiply(
                         matrix,
                         vector
                 );
 
         float[] simd =
-                SimdMatrixOps.multiply(
+                simdOps.multiply(
                         matrix,
                         vector
                 );
@@ -96,10 +98,10 @@ class SimdMatrixOpsTest {
         float[][] b = randomMatrix(size, size);
 
         float[][] scalar =
-                ScalarMatrixOps.add(a, b);
+                scalarOps.add(a, b);
 
         float[][] simd =
-                SimdMatrixOps.add(a, b);
+                simdOps.add(a, b);
 
         for (int r = 0; r < size; r++) {
 
@@ -140,10 +142,10 @@ class SimdMatrixOpsTest {
         float[][] b = randomMatrix(size, size);
 
         float[][] scalar =
-                ScalarMatrixOps.multiply(a, b);
+                scalarOps.multiply(a, b);
 
         float[][] simd =
-                SimdMatrixOps.multiply(a, b);
+                simdOps.multiply(a, b);
 
         for (int r = 0; r < size; r++) {
 
