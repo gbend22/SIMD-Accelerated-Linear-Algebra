@@ -104,4 +104,61 @@ class ScalarMatrixOpsTest {
 
         assertMatrixEquals(expected, result);
     }
+
+    @Test
+    void multiplyMatrixVector_withNaN_propagatesNaN() {
+
+        float[][] matrix = {{1, Float.NaN}, {3, 4}};
+        float[] vector = {1, 1};
+
+        float[] result = scalar.multiply(matrix, vector);
+
+        assertTrue(Float.isNaN(result[0]), "NaN in matrix should propagate to result row");
+        assertEquals(7f, result[1], DELTA);
+    }
+
+    @Test
+    void multiplyMatrixVector_withInfinity_propagatesInfinity() {
+
+        float[][] matrix = {{1, Float.POSITIVE_INFINITY}, {3, 4}};
+        float[] vector = {1, 1};
+
+        float[] result = scalar.multiply(matrix, vector);
+
+        assertEquals(Float.POSITIVE_INFINITY, result[0]);
+    }
+
+    @Test
+    void add_withNaN_propagatesNaN() {
+
+        float[][] a = {{1, Float.NaN}, {3, 4}};
+        float[][] b = {{10, 20}, {30, 40}};
+
+        float[][] result = scalar.add(a, b);
+
+        assertTrue(Float.isNaN(result[0][1]));
+        assertEquals(33f, result[1][0], DELTA);
+    }
+
+    @Test
+    void add_withInfinity_propagatesInfinity() {
+
+        float[][] a = {{Float.POSITIVE_INFINITY, 2}, {3, 4}};
+        float[][] b = {{10, 20}, {30, 40}};
+
+        float[][] result = scalar.add(a, b);
+
+        assertEquals(Float.POSITIVE_INFINITY, result[0][0]);
+    }
+
+    @Test
+    void transpose_withNaN_preservesNaN() {
+
+        float[][] matrix = {{1, Float.NaN}, {3, 4}};
+
+        float[][] result = scalar.transpose(matrix);
+
+        assertTrue(Float.isNaN(result[1][0]));
+        assertEquals(1f, result[0][0], DELTA);
+    }
 }

@@ -157,4 +157,55 @@ class SimdMatrixOpsTest {
             );
         }
     }
+
+    @Test
+    void matrixVectorMultiply_withNaN_matchesScalar() {
+
+        float[][] matrix = {{1, Float.NaN}, {3, 4}};
+        float[] vector = {1, 1};
+
+        float[] scalar = scalarOps.multiply(matrix, vector);
+        float[] simd = simdOps.multiply(matrix, vector);
+
+        assertTrue(Float.isNaN(simd[0]), "NaN should propagate in SIMD mat-vec multiply");
+        assertEquals(scalar[1], simd[1], DELTA);
+    }
+
+    @Test
+    void matrixVectorMultiply_withInfinity_matchesScalar() {
+
+        float[][] matrix = {{1, Float.POSITIVE_INFINITY}, {3, 4}};
+        float[] vector = {1, 1};
+
+        float[] scalar = scalarOps.multiply(matrix, vector);
+        float[] simd = simdOps.multiply(matrix, vector);
+
+        assertEquals(scalar[0], simd[0]);
+        assertEquals(scalar[1], simd[1], DELTA);
+    }
+
+    @Test
+    void add_withNaN_matchesScalar() {
+
+        float[][] a = {{1, Float.NaN}, {3, 4}};
+        float[][] b = {{10, 20}, {30, 40}};
+
+        float[][] scalar = scalarOps.add(a, b);
+        float[][] simd = simdOps.add(a, b);
+
+        assertTrue(Float.isNaN(simd[0][1]));
+        assertEquals(scalar[1][0], simd[1][0], DELTA);
+    }
+
+    @Test
+    void transpose_withNaN_matchesScalar() {
+
+        float[][] matrix = {{1, Float.NaN}, {3, 4}};
+
+        float[][] scalar = scalarOps.transpose(matrix);
+        float[][] simd = simdOps.transpose(matrix);
+
+        assertTrue(Float.isNaN(simd[1][0]));
+        assertEquals(scalar[0][0], simd[0][0], DELTA);
+    }
 }
