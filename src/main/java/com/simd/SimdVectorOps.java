@@ -7,6 +7,12 @@ import jdk.incubator.vector.VectorSpecies;
 
 import java.util.Arrays;
 
+/**
+ * SIMD implementation of {@link com.core.VectorBackend}, built on the Java Vector API
+ * ({@code jdk.incubator.vector}). Each operation processes the array in vector-width
+ * chunks and handles the remaining tail elements with a scalar loop. Selected at
+ * runtime when a usable vector width is available; internal, not part of the public API.
+ */
 public class SimdVectorOps implements VectorBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

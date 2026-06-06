@@ -6,6 +6,11 @@ import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
 
+/**
+ * SIMD implementation of {@link com.core.MatrixBackend}, built on the Java Vector API
+ * ({@code jdk.incubator.vector}). Selected at runtime when a usable vector width is
+ * available; internal, not part of the public API.
+ */
 public class SimdMatrixOps implements MatrixBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

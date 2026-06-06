@@ -7,6 +7,14 @@ import com.simd.SimdVectorOps;
 
 import java.util.logging.Logger;
 
+/**
+ * Internal runtime dispatcher. Detects the available SIMD vector width once at class
+ * load, then binds the {@link VectorBackend} and {@link MatrixBackend} implementations
+ * the library uses, falling back to the scalar backends when SIMD is unavailable.
+ *
+ * <p>Not part of the public API &mdash; application code should call
+ * {@link com.vector.VectorOps} and {@link com.matrix.MatrixOps} instead.
+ */
 public class Dispatcher {
 
     private static final Logger LOGGER = Logger.getLogger(Dispatcher.class.getName());

@@ -1,5 +1,10 @@
 package com.core;
 
+/**
+ * Internal contract implemented by the scalar and SIMD vector backends. The concrete
+ * implementation is chosen at runtime by {@link Dispatcher}; this type is not part of
+ * the public API.
+ */
 public interface VectorBackend {
     float dot(float[] a, float[] b);
     float norm(float[] a);

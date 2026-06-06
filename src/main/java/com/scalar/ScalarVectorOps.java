@@ -3,6 +3,11 @@ package com.scalar;
 import com.core.VectorBackend;
 import java.util.Arrays;
 
+/**
+ * Scalar (plain-loop) implementation of {@link VectorBackend}. Serves as the
+ * correctness reference for the SIMD backend and as the fallback when SIMD is
+ * unavailable. Internal; not part of the public API.
+ */
 public class ScalarVectorOps implements VectorBackend {
 
     @Override

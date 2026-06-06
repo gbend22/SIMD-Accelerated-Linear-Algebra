@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 @Fork(
         value = 2,
         jvmArgs = {
-                "--add-modules", "jdk.incubator.vector"
+                "--add-modules", "jdk.incubator.vector",
+                "-XX:+UseVectorCmov"
         }
 )
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
