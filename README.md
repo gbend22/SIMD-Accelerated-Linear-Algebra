@@ -24,7 +24,7 @@ against a scalar reference and benchmarked with JMH.
 | Element-wise    | add, subtract, multiply, divide, fused multiply-add (FMA) |
 | Reductions      | sum, min, max, argmax, softmax |
 | Utility         | scale, normalize, copy, fill |
-| Matrix          | matrix–vector multiply, matrix–matrix multiply, add, transpose |
+| Matrix          | matrix-vector multiply, matrix-matrix multiply, add, transpose |
 
 All operations have **both** a scalar and a SIMD implementation, selected automatically
 at runtime.
@@ -131,13 +131,13 @@ this library's `float` SIMD against the named `double`-precision library.
 | cosine similarity (n=1024)| 18.1×    | -       | -               |
 | sum (n=1024)             | 15.0×     | -       | -               |
 | matrix multiply (512×512)| 15.7×     | -       | -               |
-| matrix–vector (256×256)  | 9.5×      | -       | -               |
+| matrix-vector (256×256)  | 9.5×      | -       | -               |
 | element-wise add (n=1024)| 0.9×      | 2.4×    | 4.3×            |
 
 **Key findings:**
 
 - **Compute-bound operations win big.** Reduction-style kernels (dot, norm, cosine,
-  sum) reach **10–20× over scalar** for vectors of 256 elements or more, comfortably
+  sum) reach **10-20× over scalar** for vectors of 256 elements or more, comfortably
   exceeding the project's 4× target.
 - **There is a breakeven point.** At very small sizes (n≈16) the fixed overhead of the
   Vector API cancels its benefit, and SIMD is roughly on par with scalar. SIMD pulls
