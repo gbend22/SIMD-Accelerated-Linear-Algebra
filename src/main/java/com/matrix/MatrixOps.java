@@ -1,6 +1,7 @@
 package com.matrix;
 
 import com.core.Dispatcher;
+import com.decomp.LUDecomposition;
 
 /**
  * Public entry point for single-precision ({@code float}) matrix operations.
@@ -68,5 +69,9 @@ public class MatrixOps {
      */
     public static float[][] transpose(float[][] matrix) {
         return Dispatcher.transpose(matrix);
+    }
+
+    public static LUDecomposition lu(float[][] matrix) {
+        return Dispatcher.lu(matrix);
     }
 }
