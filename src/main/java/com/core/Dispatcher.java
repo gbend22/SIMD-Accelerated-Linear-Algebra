@@ -1,5 +1,7 @@
 package com.core;
 
+import com.decomp.LUDecomposition;
+import com.scalar.ScalarDecompositionOps;
 import com.scalar.ScalarMatrixOps;
 import com.scalar.ScalarVectorOps;
 import com.simd.SimdMatrixOps;
@@ -21,6 +23,7 @@ public class Dispatcher {
 
     private static final VectorBackend VECTOR_BACKEND;
     private static final MatrixBackend MATRIX_BACKEND;
+    private static final DecompositionBackend DECOMPOSITION_BACKEND = new ScalarDecompositionOps();
 
     static {
 
@@ -126,5 +129,9 @@ public class Dispatcher {
 
     public static float[][] transpose(float[][] matrix) {
         return MATRIX_BACKEND.transpose(matrix);
+    }
+
+    public static LUDecomposition lu(float[][] matrix) {
+        return DECOMPOSITION_BACKEND.lu(matrix);
     }
 }
