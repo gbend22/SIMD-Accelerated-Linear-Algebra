@@ -74,4 +74,8 @@ public class MatrixOps {
     public static LUDecomposition lu(float[][] matrix) {
         return Dispatcher.lu(matrix);
     }
+
+    public static float[] solve(float[][] matrix, float[] b) {
+        return Dispatcher.solve(matrix, b);
+    }
 }

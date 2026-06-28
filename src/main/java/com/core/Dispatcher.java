@@ -134,4 +134,8 @@ public class Dispatcher {
     public static LUDecomposition lu(float[][] matrix) {
         return DECOMPOSITION_BACKEND.lu(matrix);
     }
+
+    public static float[] solve(float[][] matrix, float[] b) {
+        return DECOMPOSITION_BACKEND.solve(matrix, b);
+    }
 }
