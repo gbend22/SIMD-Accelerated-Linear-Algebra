@@ -112,4 +112,67 @@ class ScalarDecompositionOpsTest {
         float[][] a = new float[0][0];
         assertThrows(IllegalArgumentException.class, () -> scalar.lu(a));
     }
+
+    private static float[] matVec(float[][] a, float[] x) {
+        float[] out = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            float s = 0f;
+            for (int j = 0; j < x.length; j++) {
+                s += a[i][j] * x[j];
+            }
+            out[i] = s;
+        }
+        return out;
+    }
+
+    @Test
+    void solve_knownSystem() {
+        float[][] a = {{3, 2, -1}, {2, -2, 4}, {-1, 0.5f, -1}};
+        float[] b = {1, -2, 0};
+        assertArrayEquals(new float[]{1, -2, -2}, scalar.solve(a, b), 1e-3f);
+    }
+
+    @Test
+    void solve_residualIsSmall_5x5() {
+        float[][] a = {
+                {10, 2, 0, 1, 3},
+                {3, 12, 1, 0, 2},
+                {1, 4, 14, 2, 0},
+                {0, 1, 3, 11, 4},
+                {2, 0, 1, 5, 13}
+        };
+        float[] expected = {1, -2, 3, -4, 5};
+        float[] b = matVec(a, expected);
+        float[] x = scalar.solve(a, b);
+        assertArrayEquals(b, matVec(a, x), 1e-3f);
+        assertArrayEquals(expected, x, 1e-2f);
+    }
+
+    @Test
+    void solve_identityReturnsRhs() {
+        float[][] a = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+        float[] b = {7, -3, 5};
+        assertArrayEquals(b, scalar.solve(a, b), DELTA);
+    }
+
+    @Test
+    void solve_mismatchedRhs_throws() {
+        float[][] a = {{1, 2}, {3, 4}};
+        float[] b = {1, 2, 3};
+        assertThrows(IllegalArgumentException.class, () -> scalar.solve(a, b));
+    }
+
+    @Test
+    void solve_singular_throws() {
+        float[][] a = {{2, 4}, {1, 2}};
+        float[] b = {1, 1};
+        assertThrows(ArithmeticException.class, () -> scalar.solve(a, b));
+    }
+
+    @Test
+    void solve_nonSquare_throws() {
+        float[][] a = {{1, 2, 3}, {4, 5, 6}};
+        float[] b = {1, 2};
+        assertThrows(IllegalArgumentException.class, () -> scalar.solve(a, b));
+    }
 }
