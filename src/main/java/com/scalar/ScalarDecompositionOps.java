@@ -83,4 +83,44 @@ public class ScalarDecompositionOps implements DecompositionBackend {
 
         return new LUDecomposition(l, u, pivot, pivotSign);
     }
+
+    @Override
+    public float[] solve(float[][] matrix, float[] b) {
+        checkSquare(matrix);
+
+        int n = matrix.length;
+        if (b.length != n) {
+            throw new IllegalArgumentException(
+                    "Right-hand side length must match matrix dimension, got " + b.length + " for " + n);
+        }
+
+        LUDecomposition lu = lu(matrix);
+        float[][] l = lu.getL();
+        float[][] u = lu.getU();
+        int[] pivot = lu.getPivot();
+
+        float[] y = new float[n];
+        for (int i = 0; i < n; i++) {
+            float sum = b[pivot[i]];
+            for (int j = 0; j < i; j++) {
+                sum -= l[i][j] * y[j];
+            }
+            y[i] = sum;
+        }
+
+        float[] x = new float[n];
+        for (int i = n - 1; i >= 0; i--) {
+            float diag = u[i][i];
+            if (diag == 0f) {
+                throw new ArithmeticException("Matrix is singular; cannot solve");
+            }
+            float sum = y[i];
+            for (int j = i + 1; j < n; j++) {
+                sum -= u[i][j] * x[j];
+            }
+            x[i] = sum / diag;
+        }
+
+        return x;
+    }
 }
