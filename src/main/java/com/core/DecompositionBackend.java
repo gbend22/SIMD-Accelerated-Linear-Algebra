@@ -6,4 +6,5 @@ public interface DecompositionBackend {
     LUDecomposition lu(float[][] matrix);
     float[] solve(float[][] matrix, float[] b);
     float determinant(float[][] matrix);
+    float[][] inverse(float[][] matrix);
 }

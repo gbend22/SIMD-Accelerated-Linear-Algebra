@@ -125,6 +125,48 @@ public class ScalarDecompositionOps implements DecompositionBackend {
     }
 
     @Override
+    public float[][] inverse(float[][] matrix) {
+        checkSquare(matrix);
+
+        int n = matrix.length;
+
+        LUDecomposition lu = lu(matrix);
+        float[][] l = lu.getL();
+        float[][] u = lu.getU();
+        int[] pivot = lu.getPivot();
+
+        for (int i = 0; i < n; i++) {
+            if (u[i][i] == 0f) {
+                throw new ArithmeticException("Matrix is singular; cannot invert");
+            }
+        }
+
+        float[][] inverse = new float[n][n];
+
+        for (int col = 0; col < n; col++) {
+
+            float[] y = new float[n];
+            for (int i = 0; i < n; i++) {
+                float sum = (pivot[i] == col) ? 1f : 0f;
+                for (int j = 0; j < i; j++) {
+                    sum -= l[i][j] * y[j];
+                }
+                y[i] = sum;
+            }
+
+            for (int i = n - 1; i >= 0; i--) {
+                float sum = y[i];
+                for (int j = i + 1; j < n; j++) {
+                    sum -= u[i][j] * inverse[j][col];
+                }
+                inverse[i][col] = sum / u[i][i];
+            }
+        }
+
+        return inverse;
+    }
+
+    @Override
     public float determinant(float[][] matrix) {
         checkSquare(matrix);
 
