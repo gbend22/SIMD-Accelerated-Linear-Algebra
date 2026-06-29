@@ -175,4 +175,40 @@ class ScalarDecompositionOpsTest {
         float[] b = {1, 2};
         assertThrows(IllegalArgumentException.class, () -> scalar.solve(a, b));
     }
+
+    @Test
+    void determinant_2x2() {
+        float[][] a = {{4, 3}, {6, 3}};
+        assertEquals(-6f, scalar.determinant(a), 1e-3f);
+    }
+
+    @Test
+    void determinant_3x3() {
+        float[][] a = {{6, 1, 1}, {4, -2, 5}, {2, 8, 7}};
+        assertEquals(-306f, scalar.determinant(a), 1e-1f);
+    }
+
+    @Test
+    void determinant_triangular_isProductOfDiagonal() {
+        float[][] a = {{2, 0, 0}, {5, 3, 0}, {1, 7, 4}};
+        assertEquals(24f, scalar.determinant(a), 1e-3f);
+    }
+
+    @Test
+    void determinant_identity_isOne() {
+        float[][] a = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+        assertEquals(1f, scalar.determinant(a), DELTA);
+    }
+
+    @Test
+    void determinant_singular_isZero() {
+        float[][] a = {{2, 4}, {1, 2}};
+        assertEquals(0f, scalar.determinant(a), 1e-3f);
+    }
+
+    @Test
+    void determinant_nonSquare_throws() {
+        float[][] a = {{1, 2, 3}, {4, 5, 6}};
+        assertThrows(IllegalArgumentException.class, () -> scalar.determinant(a));
+    }
 }
