@@ -142,4 +142,8 @@ public class Dispatcher {
     public static float determinant(float[][] matrix) {
         return DECOMPOSITION_BACKEND.determinant(matrix);
     }
+
+    public static float[][] inverse(float[][] matrix) {
+        return DECOMPOSITION_BACKEND.inverse(matrix);
+    }
 }

@@ -82,4 +82,8 @@ public class MatrixOps {
     public static float determinant(float[][] matrix) {
         return Dispatcher.determinant(matrix);
     }
+
+    public static float[][] inverse(float[][] matrix) {
+        return Dispatcher.inverse(matrix);
+    }
 }
