@@ -78,4 +78,8 @@ public class MatrixOps {
     public static float[] solve(float[][] matrix, float[] b) {
         return Dispatcher.solve(matrix, b);
     }
+
+    public static float determinant(float[][] matrix) {
+        return Dispatcher.determinant(matrix);
+    }
 }
