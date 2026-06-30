@@ -211,4 +211,76 @@ class ScalarDecompositionOpsTest {
         float[][] a = {{1, 2, 3}, {4, 5, 6}};
         assertThrows(IllegalArgumentException.class, () -> scalar.determinant(a));
     }
+
+    private static float[][] identity(int n) {
+        float[][] id = new float[n][n];
+        for (int i = 0; i < n; i++) {
+            id[i][i] = 1f;
+        }
+        return id;
+    }
+
+    private void assertIsInverse(float[][] a) {
+        float[][] inv = scalar.inverse(a);
+        float[][] product = multiply(a, inv);
+        float[][] id = identity(a.length);
+        for (int i = 0; i < a.length; i++) {
+            assertArrayEquals(id[i], product[i], 1e-3f);
+        }
+    }
+
+    @Test
+    void inverse_2x2_knownValue() {
+        float[][] a = {{4, 7}, {2, 6}};
+        float[][] expected = {{0.6f, -0.7f}, {-0.2f, 0.4f}};
+        float[][] inv = scalar.inverse(a);
+        for (int i = 0; i < expected.length; i++) {
+            assertArrayEquals(expected[i], inv[i], 1e-3f);
+        }
+    }
+
+    @Test
+    void inverse_timesOriginal_isIdentity_3x3() {
+        float[][] a = {{2, 1, 1}, {1, 3, 2}, {1, 0, 0}};
+        assertIsInverse(a);
+    }
+
+    @Test
+    void inverse_timesOriginal_isIdentity_5x5() {
+        float[][] a = {
+                {10, 2, 0, 1, 3},
+                {3, 12, 1, 0, 2},
+                {1, 4, 14, 2, 0},
+                {0, 1, 3, 11, 4},
+                {2, 0, 1, 5, 13}
+        };
+        assertIsInverse(a);
+    }
+
+    @Test
+    void inverse_requiresRowSwap() {
+        float[][] a = {{0, 1}, {1, 0}};
+        assertIsInverse(a);
+    }
+
+    @Test
+    void inverse_identity_isIdentity() {
+        float[][] a = identity(4);
+        float[][] inv = scalar.inverse(a);
+        for (int i = 0; i < a.length; i++) {
+            assertArrayEquals(a[i], inv[i], DELTA);
+        }
+    }
+
+    @Test
+    void inverse_singular_throws() {
+        float[][] a = {{2, 4}, {1, 2}};
+        assertThrows(ArithmeticException.class, () -> scalar.inverse(a));
+    }
+
+    @Test
+    void inverse_nonSquare_throws() {
+        float[][] a = {{1, 2, 3}, {4, 5, 6}};
+        assertThrows(IllegalArgumentException.class, () -> scalar.inverse(a));
+    }
 }
