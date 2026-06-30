@@ -3,6 +3,7 @@ package com.simd;
 import com.core.DecompositionBackend;
 import com.decomp.LUDecomposition;
 import jdk.incubator.vector.FloatVector;
+import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
 public class SimdDecompositionOps implements DecompositionBackend {
@@ -100,9 +101,78 @@ public class SimdDecompositionOps implements DecompositionBackend {
         return new LUDecomposition(l, u, pivot, pivotSign);
     }
 
+    private static float[] forwardSubstitution(float[][] l, float[] rhs, int n) {
+        float[] y = new float[n];
+        for (int i = 0; i < n; i++) {
+            int bound = SPECIES.loopBound(i);
+            FloatVector acc = FloatVector.zero(SPECIES);
+
+            int j = 0;
+            for (; j < bound; j += SPECIES.length()) {
+                FloatVector vl = FloatVector.fromArray(SPECIES, l[i], j);
+                FloatVector vy = FloatVector.fromArray(SPECIES, y, j);
+                acc = vl.fma(vy, acc);
+            }
+
+            float sum = rhs[i] - acc.reduceLanes(VectorOperators.ADD);
+            for (; j < i; j++) {
+                sum -= l[i][j] * y[j];
+            }
+            y[i] = sum;
+        }
+        return y;
+    }
+
+    private static float[] backSubstitution(float[][] u, float[] y, int n) {
+        float[] x = new float[n];
+        for (int i = n - 1; i >= 0; i--) {
+            float diag = u[i][i];
+            if (diag == 0f) {
+                throw new ArithmeticException("Matrix is singular; cannot solve");
+            }
+
+            int start = i + 1;
+            int bound = SPECIES.loopBound(n - start) + start;
+            FloatVector acc = FloatVector.zero(SPECIES);
+
+            int j = start;
+            for (; j < bound; j += SPECIES.length()) {
+                FloatVector vu = FloatVector.fromArray(SPECIES, u[i], j);
+                FloatVector vx = FloatVector.fromArray(SPECIES, x, j);
+                acc = vu.fma(vx, acc);
+            }
+
+            float sum = y[i] - acc.reduceLanes(VectorOperators.ADD);
+            for (; j < n; j++) {
+                sum -= u[i][j] * x[j];
+            }
+            x[i] = sum / diag;
+        }
+        return x;
+    }
+
     @Override
     public float[] solve(float[][] matrix, float[] b) {
-        throw new UnsupportedOperationException("SIMD solve not yet implemented");
+        checkSquare(matrix);
+
+        int n = matrix.length;
+        if (b.length != n) {
+            throw new IllegalArgumentException(
+                    "Right-hand side length must match matrix dimension, got " + b.length + " for " + n);
+        }
+
+        LUDecomposition lu = lu(matrix);
+        float[][] l = lu.getL();
+        float[][] u = lu.getU();
+        int[] pivot = lu.getPivot();
+
+        float[] permuted = new float[n];
+        for (int i = 0; i < n; i++) {
+            permuted[i] = b[pivot[i]];
+        }
+
+        float[] y = forwardSubstitution(l, permuted, n);
+        return backSubstitution(u, y, n);
     }
 
     @Override
