@@ -213,6 +213,16 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public float determinant(float[][] matrix) {
-        throw new UnsupportedOperationException("SIMD determinant not yet implemented");
+        checkSquare(matrix);
+
+        LUDecomposition lu = lu(matrix);
+        float[][] u = lu.getU();
+
+        float det = lu.getPivotSign();
+        for (int i = 0; i < u.length; i++) {
+            det *= u[i][i];
+        }
+
+        return det;
     }
 }
