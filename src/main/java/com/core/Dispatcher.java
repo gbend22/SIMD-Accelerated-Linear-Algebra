@@ -4,6 +4,7 @@ import com.decomp.LUDecomposition;
 import com.scalar.ScalarDecompositionOps;
 import com.scalar.ScalarMatrixOps;
 import com.scalar.ScalarVectorOps;
+import com.simd.SimdDecompositionOps;
 import com.simd.SimdMatrixOps;
 import com.simd.SimdVectorOps;
 
@@ -23,7 +24,7 @@ public class Dispatcher {
 
     private static final VectorBackend VECTOR_BACKEND;
     private static final MatrixBackend MATRIX_BACKEND;
-    private static final DecompositionBackend DECOMPOSITION_BACKEND = new ScalarDecompositionOps();
+    private static final DecompositionBackend DECOMPOSITION_BACKEND;
 
     static {
 
@@ -34,10 +35,12 @@ public class Dispatcher {
             LOGGER.info("[SimdLinalg] SIMD enabled with " + width + " float lanes");
             VECTOR_BACKEND = new SimdVectorOps();
             MATRIX_BACKEND = new SimdMatrixOps();
+            DECOMPOSITION_BACKEND = new SimdDecompositionOps();
         } else {
             LOGGER.info("[SimdLinalg] SIMD unavailable, falling back to scalar backend");
             VECTOR_BACKEND = new ScalarVectorOps();
             MATRIX_BACKEND = new ScalarMatrixOps();
+            DECOMPOSITION_BACKEND = new ScalarDecompositionOps();
         }
     }
 
