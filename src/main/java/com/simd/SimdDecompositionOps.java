@@ -177,7 +177,38 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public float[][] inverse(float[][] matrix) {
-        throw new UnsupportedOperationException("SIMD inverse not yet implemented");
+        checkSquare(matrix);
+
+        int n = matrix.length;
+
+        LUDecomposition lu = lu(matrix);
+        float[][] l = lu.getL();
+        float[][] u = lu.getU();
+        int[] pivot = lu.getPivot();
+
+        for (int i = 0; i < n; i++) {
+            if (u[i][i] == 0f) {
+                throw new ArithmeticException("Matrix is singular; cannot invert");
+            }
+        }
+
+        float[][] inverse = new float[n][n];
+
+        for (int col = 0; col < n; col++) {
+            float[] e = new float[n];
+            for (int i = 0; i < n; i++) {
+                e[i] = (pivot[i] == col) ? 1f : 0f;
+            }
+
+            float[] y = forwardSubstitution(l, e, n);
+            float[] x = backSubstitution(u, y, n);
+
+            for (int i = 0; i < n; i++) {
+                inverse[i][col] = x[i];
+            }
+        }
+
+        return inverse;
     }
 
     @Override
