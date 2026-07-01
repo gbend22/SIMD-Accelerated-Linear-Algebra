@@ -25,23 +25,21 @@ class VectorBackendParityTest {
         return Stream.of(new ScalarVectorOps(), new SimdVectorOps());
     }
 
-    // A 19-element vector: longer than a typical lane width and not a multiple of it.
     private static float[] rampA() {
         float[] a = new float[19];
-        for (int i = 0; i < a.length; i++) a[i] = i + 1;       // 1..19
+        for (int i = 0; i < a.length; i++) a[i] = i + 1;
         return a;
     }
 
     private static float[] rampB() {
         float[] b = new float[19];
-        for (int i = 0; i < b.length; i++) b[i] = 2f * (i + 1); // 2,4,..38
+        for (int i = 0; i < b.length; i++) b[i] = 2f * (i + 1);
         return b;
     }
 
     @ParameterizedTest
     @MethodSource("backends")
     void dot(VectorBackend ops) {
-        // sum of 2*(i+1)^2 for i=1..19 = 2 * (19*20*39/6) = 2 * 2470 = 4940
         assertEquals(4940f, ops.dot(rampA(), rampB()), DELTA);
     }
 
@@ -118,7 +116,7 @@ class VectorBackendParityTest {
     @ParameterizedTest
     @MethodSource("backends")
     void sum(VectorBackend ops) {
-        assertEquals(190f, ops.sum(rampA()), DELTA); // 19*20/2 = 190
+        assertEquals(190f, ops.sum(rampA()), DELTA);
     }
 
     @ParameterizedTest
@@ -191,7 +189,6 @@ class VectorBackendParityTest {
     void fma(VectorBackend ops) {
         float[] result = ops.fma(rampA(), rampB(), rampA());
         for (int i = 0; i < result.length; i++) {
-            // (i+1)*2*(i+1) + (i+1)
             float n = i + 1;
             assertEquals(2f * n * n + n, result[i], DELTA);
         }
@@ -208,7 +205,7 @@ class VectorBackendParityTest {
     @MethodSource("backends")
     void argmax(VectorBackend ops) {
         float[] a = {3, -1, 5, 2, -7, 8, 0, 4, 6, 1, -2, 9, 3, 5, -4, 7, 2, 8, 1};
-        assertEquals(11, ops.argmax(a)); // value 9 at index 11
+        assertEquals(11, ops.argmax(a));
     }
 
     @ParameterizedTest

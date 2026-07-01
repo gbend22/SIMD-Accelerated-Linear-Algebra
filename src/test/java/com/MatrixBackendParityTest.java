@@ -129,7 +129,7 @@ class MatrixBackendParityTest {
         for (int c = 0; c < n; c++) {
             matrix[0][c] = 1f;
             matrix[1][c] = 2f;
-            vector[c] = c + 1;          // 1..20, sum = 210
+            vector[c] = c + 1;
         }
 
         float[] result = ops.multiply(matrix, vector);
