@@ -1,6 +1,7 @@
 package com;
 
 import com.performance.ParallelSimdMatrixOps;
+import com.performance.TiledSimdMatrixOps;
 import com.scalar.ScalarMatrixOps;
 import com.simd.SimdMatrixOps;
 
@@ -33,6 +34,7 @@ public class ParallelMatrixMultiplyBenchmark {
 
     private final ScalarMatrixOps scalar = new ScalarMatrixOps();
     private final SimdMatrixOps simd = new SimdMatrixOps();
+    private final TiledSimdMatrixOps tiled = new TiledSimdMatrixOps();
     private final ParallelSimdMatrixOps parallel = new ParallelSimdMatrixOps();
 
     private float[][] a;
@@ -62,6 +64,11 @@ public class ParallelMatrixMultiplyBenchmark {
     @Benchmark
     public void simd_multiply(Blackhole bh) {
         bh.consume(simd.multiply(a, b));
+    }
+
+    @Benchmark
+    public void tiledSimd_multiply(Blackhole bh) {
+        bh.consume(tiled.multiply(a, b));
     }
 
     @Benchmark
