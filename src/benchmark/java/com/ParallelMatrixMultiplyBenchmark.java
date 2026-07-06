@@ -1,5 +1,6 @@
 package com;
 
+import com.performance.CacheBlockedTiledSimdMatrixOps;
 import com.performance.ParallelSimdMatrixOps;
 import com.performance.ParallelTiledSimdMatrixOps;
 import com.performance.TiledSimdMatrixOps;
@@ -36,6 +37,7 @@ public class ParallelMatrixMultiplyBenchmark {
     private final ScalarMatrixOps scalar = new ScalarMatrixOps();
     private final SimdMatrixOps simd = new SimdMatrixOps();
     private final TiledSimdMatrixOps tiled = new TiledSimdMatrixOps();
+    private final CacheBlockedTiledSimdMatrixOps cacheBlocked = new CacheBlockedTiledSimdMatrixOps();
     private final ParallelSimdMatrixOps parallel = new ParallelSimdMatrixOps();
     private final ParallelTiledSimdMatrixOps parallelTiled = new ParallelTiledSimdMatrixOps();
 
@@ -71,6 +73,11 @@ public class ParallelMatrixMultiplyBenchmark {
     @Benchmark
     public void tiledSimd_multiply(Blackhole bh) {
         bh.consume(tiled.multiply(a, b));
+    }
+
+    @Benchmark
+    public void cacheBlockedTiled_multiply(Blackhole bh) {
+        bh.consume(cacheBlocked.multiply(a, b));
     }
 
     @Benchmark
