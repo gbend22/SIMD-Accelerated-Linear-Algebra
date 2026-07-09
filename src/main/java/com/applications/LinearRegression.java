@@ -1,6 +1,7 @@
 package com.applications;
 
 import com.matrix.MatrixOps;
+import com.vector.VectorOps;
 
 import java.util.Arrays;
 
@@ -52,6 +53,31 @@ public class LinearRegression {
             coefficients = beta;
         }
         fitted = true;
+    }
+
+    public float predict(float[] sample) {
+        requireFitted();
+        if (sample.length != coefficients.length) {
+            throw new IllegalArgumentException(
+                    "Feature count mismatch: model has " + coefficients.length
+                            + " but sample has " + sample.length);
+        }
+        return intercept + VectorOps.dot(coefficients, sample);
+    }
+
+    public float[] predict(float[][] x) {
+        requireFitted();
+        float[] predictions = new float[x.length];
+        for (int i = 0; i < x.length; i++) {
+            predictions[i] = predict(x[i]);
+        }
+        return predictions;
+    }
+
+    private void requireFitted() {
+        if (!fitted) {
+            throw new IllegalStateException("Model has not been fitted");
+        }
     }
 
     private static float[][] augment(float[][] x) {
