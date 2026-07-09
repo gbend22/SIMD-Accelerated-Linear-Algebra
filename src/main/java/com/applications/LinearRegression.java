@@ -74,6 +74,16 @@ public class LinearRegression {
         return predictions;
     }
 
+    public float[] coefficients() {
+        requireFitted();
+        return coefficients.clone();
+    }
+
+    public float intercept() {
+        requireFitted();
+        return intercept;
+    }
+
     private void requireFitted() {
         if (!fitted) {
             throw new IllegalStateException("Model has not been fitted");
