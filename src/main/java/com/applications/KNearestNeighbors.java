@@ -94,6 +94,15 @@ public class KNearestNeighbors {
         return predictions;
     }
 
+    public int k() {
+        return k;
+    }
+
+    public int trainingSize() {
+        requireFitted();
+        return trainingLabels.length;
+    }
+
     private void requireFitted() {
         if (!fitted) {
             throw new IllegalStateException("Model has not been fitted");
