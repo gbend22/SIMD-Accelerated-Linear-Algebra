@@ -63,6 +63,25 @@ public class KMeans {
         fitted = true;
     }
 
+    public int predict(float[] sample) {
+        requireFitted();
+        if (sample.length != centroids[0].length) {
+            throw new IllegalArgumentException(
+                    "Feature count mismatch: model has " + centroids[0].length
+                            + " but sample has " + sample.length);
+        }
+        return nearestCentroid(sample);
+    }
+
+    public int[] predict(float[][] x) {
+        requireFitted();
+        int[] predictions = new int[x.length];
+        for (int i = 0; i < x.length; i++) {
+            predictions[i] = predict(x[i]);
+        }
+        return predictions;
+    }
+
     private boolean assignPoints(float[][] x) {
         boolean changed = false;
         for (int i = 0; i < x.length; i++) {
