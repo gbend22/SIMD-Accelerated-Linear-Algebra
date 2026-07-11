@@ -1,5 +1,7 @@
 package com.applications;
 
+import com.vector.VectorOps;
+
 import java.util.Random;
 
 public class KMeans {
@@ -50,8 +52,56 @@ public class KMeans {
 
         centroids = initializeCentroids(x);
         assignments = new int[x.length];
-        iterations = 0;
+
+        for (iterations = 0; iterations < maxIterations; iterations++) {
+            boolean changed = assignPoints(x);
+            if (!changed) {
+                break;
+            }
+            updateCentroids(x);
+        }
         fitted = true;
+    }
+
+    private boolean assignPoints(float[][] x) {
+        boolean changed = false;
+        for (int i = 0; i < x.length; i++) {
+            int nearest = nearestCentroid(x[i]);
+            if (nearest != assignments[i]) {
+                assignments[i] = nearest;
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    private int nearestCentroid(float[] sample) {
+        int best = 0;
+        float bestDistance = VectorOps.euclideanDistance(centroids[0], sample);
+        for (int c = 1; c < centroids.length; c++) {
+            float distance = VectorOps.euclideanDistance(centroids[c], sample);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = c;
+            }
+        }
+        return best;
+    }
+
+    private void updateCentroids(float[][] x) {
+        int features = x[0].length;
+        float[][] sums = new float[k][features];
+        int[] counts = new int[k];
+        for (int i = 0; i < x.length; i++) {
+            int c = assignments[i];
+            sums[c] = VectorOps.add(sums[c], x[i]);
+            counts[c]++;
+        }
+        for (int c = 0; c < k; c++) {
+            if (counts[c] > 0) {
+                centroids[c] = VectorOps.scale(sums[c], 1f / counts[c]);
+            }
+        }
     }
 
     private float[][] initializeCentroids(float[][] x) {
