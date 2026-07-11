@@ -139,6 +139,24 @@ public class KMeans {
         return result;
     }
 
+    public float[][] centroids() {
+        requireFitted();
+        float[][] copy = new float[centroids.length][];
+        for (int c = 0; c < centroids.length; c++) {
+            copy[c] = centroids[c].clone();
+        }
+        return copy;
+    }
+
+    public int k() {
+        return k;
+    }
+
+    public int iterations() {
+        requireFitted();
+        return iterations;
+    }
+
     private void requireFitted() {
         if (!fitted) {
             throw new IllegalStateException("Model has not been fitted");
