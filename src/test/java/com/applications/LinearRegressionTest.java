@@ -102,4 +102,19 @@ class LinearRegressionTest {
         LinearRegression model = new LinearRegression();
         assertThrows(IllegalStateException.class, () -> model.predict(new float[]{1, 2}));
     }
+
+    @Test
+    void fromParameters_predictsWithoutFitting() {
+        LinearRegression model = LinearRegression.fromParameters(new float[]{2f, 3f}, 5f);
+
+        assertEquals(2f * 4f + 3f * 1f + 5f, model.predict(new float[]{4, 1}), DELTA);
+        assertArrayEquals(new float[]{2f, 3f}, model.coefficients(), DELTA);
+        assertEquals(5f, model.intercept(), DELTA);
+    }
+
+    @Test
+    void fromParameters_emptyCoefficients_throws() {
+        assertThrows(IllegalArgumentException.class,
+                () -> LinearRegression.fromParameters(new float[0], 1f));
+    }
 }
