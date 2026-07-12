@@ -21,6 +21,17 @@ public class LinearRegression {
         this.fitIntercept = fitIntercept;
     }
 
+    public static LinearRegression fromParameters(float[] coefficients, float intercept) {
+        if (coefficients.length == 0) {
+            throw new IllegalArgumentException("Coefficients must not be empty");
+        }
+        LinearRegression model = new LinearRegression();
+        model.coefficients = coefficients.clone();
+        model.intercept = intercept;
+        model.fitted = true;
+        return model;
+    }
+
     public void fit(float[][] x, float[] y) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
