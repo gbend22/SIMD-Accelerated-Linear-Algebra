@@ -34,6 +34,27 @@ public class KMeans {
         this.seed = seed;
     }
 
+    public static KMeans fromCentroids(float[][] centroids) {
+        if (centroids.length == 0) {
+            throw new IllegalArgumentException("Centroids must not be empty");
+        }
+        int features = centroids[0].length;
+        for (float[] centroid : centroids) {
+            if (centroid.length != features) {
+                throw new IllegalArgumentException("All centroids must have the same number of features");
+            }
+        }
+        KMeans model = new KMeans(centroids.length);
+        float[][] copy = new float[centroids.length][];
+        for (int c = 0; c < centroids.length; c++) {
+            copy[c] = centroids[c].clone();
+        }
+        model.centroids = copy;
+        model.iterations = 0;
+        model.fitted = true;
+        return model;
+    }
+
     public void fit(float[][] x) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
