@@ -126,4 +126,26 @@ class KNearestNeighborsTest {
         KNearestNeighbors model = new KNearestNeighbors(1);
         assertThrows(IllegalStateException.class, () -> model.predict(new float[]{1, 2}));
     }
+
+    @Test
+    void fromTrainingData_buildsFittedModel() {
+        float[][] x = {{0, 0}, {1, 0}, {0, 1}, {10, 10}, {9, 10}, {10, 9}};
+        int[] y = {0, 0, 0, 1, 1, 1};
+
+        KNearestNeighbors model = KNearestNeighbors.fromTrainingData(3, x, y);
+
+        assertEquals(3, model.k());
+        assertEquals(6, model.trainingSize());
+        assertEquals(0, model.predict(new float[]{0.5f, 0.5f}));
+        assertEquals(1, model.predict(new float[]{9.5f, 9.5f}));
+    }
+
+    @Test
+    void fromTrainingData_invalidInput_throws() {
+        float[][] x = {{0, 0}, {1, 0}};
+        int[] y = {0, 0, 1};
+
+        assertThrows(IllegalArgumentException.class,
+                () -> KNearestNeighbors.fromTrainingData(1, x, y));
+    }
 }
