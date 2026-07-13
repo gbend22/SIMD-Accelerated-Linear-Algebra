@@ -21,6 +21,12 @@ public class KNearestNeighbors {
         this.k = k;
     }
 
+    public static KNearestNeighbors fromTrainingData(int k, float[][] x, int[] y) {
+        KNearestNeighbors model = new KNearestNeighbors(k);
+        model.fit(x, y);
+        return model;
+    }
+
     public void fit(float[][] x, int[] y) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
