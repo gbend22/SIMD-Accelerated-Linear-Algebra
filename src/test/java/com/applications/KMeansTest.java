@@ -168,4 +168,36 @@ class KMeansTest {
         KMeans model = new KMeans(2);
         assertThrows(IllegalStateException.class, model::centroids);
     }
+
+    @Test
+    void fromCentroids_predictsWithoutFitting() {
+        float[][] centroids = {{0f, 0f}, {10f, 10f}};
+
+        KMeans model = KMeans.fromCentroids(centroids);
+
+        assertEquals(2, model.k());
+        assertEquals(0, model.predict(new float[]{1f, 1f}));
+        assertEquals(1, model.predict(new float[]{9f, 9f}));
+    }
+
+    @Test
+    void fromCentroids_copiesInput() {
+        float[][] centroids = {{0f, 0f}, {10f, 10f}};
+
+        KMeans model = KMeans.fromCentroids(centroids);
+        centroids[0][0] = 100f;
+
+        assertEquals(0, model.predict(new float[]{1f, 1f}));
+    }
+
+    @Test
+    void fromCentroids_emptyCentroids_throws() {
+        assertThrows(IllegalArgumentException.class, () -> KMeans.fromCentroids(new float[0][0]));
+    }
+
+    @Test
+    void fromCentroids_raggedCentroids_throws() {
+        float[][] centroids = {{0f, 0f}, {10f}};
+        assertThrows(IllegalArgumentException.class, () -> KMeans.fromCentroids(centroids));
+    }
 }
