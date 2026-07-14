@@ -36,9 +36,42 @@ public class BlockedLuSweep {
         }
         int[] sign = {1};
 
-        factorPanel(a, 0, n, n, pivot, sign);
+        for (int kk = 0; kk < n; kk += blockSize) {
+            int kb = Math.min(blockSize, n - kk);
+            factorPanel(a, kk, kb, n, pivot, sign);
+
+            int rest = kk + kb;
+            if (rest < n) {
+                applyTrsm(a, kk, kb, rest, n);
+                updateTrailing(a, kk, kb, rest, n);
+            }
+        }
 
         return extractLu(a, pivot, sign[0], n);
+    }
+
+    private static void applyTrsm(float[][] a, int kk, int kb, int rest, int n) {
+        int panelEnd = kk + kb;
+        for (int r = kk; r < panelEnd; r++) {
+            for (int p = kk; p < r; p++) {
+                float factor = a[r][p];
+                for (int j = rest; j < n; j++) {
+                    a[r][j] -= factor * a[p][j];
+                }
+            }
+        }
+    }
+
+    private static void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
+        int panelEnd = kk + kb;
+        for (int i = rest; i < n; i++) {
+            for (int p = kk; p < panelEnd; p++) {
+                float factor = a[i][p];
+                for (int j = rest; j < n; j++) {
+                    a[i][j] -= factor * a[p][j];
+                }
+            }
+        }
     }
 
     private static void factorPanel(float[][] a, int kk, int kb, int n, int[] pivot, int[] sign) {
