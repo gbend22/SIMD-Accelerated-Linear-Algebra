@@ -1,8 +1,12 @@
 package com.performance;
 
 import com.decomp.LUDecomposition;
+import jdk.incubator.vector.FloatVector;
+import jdk.incubator.vector.VectorSpecies;
 
 public class BlockedLuSweep {
+
+    private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
 
     private static void checkSquare(float[][] matrix) {
         int n = matrix.length;
@@ -64,11 +68,25 @@ public class BlockedLuSweep {
 
     private static void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
         int panelEnd = kk + kb;
+        int bound = SPECIES.loopBound(n - rest) + rest;
         for (int i = rest; i < n; i++) {
+            float[] rowI = a[i];
             for (int p = kk; p < panelEnd; p++) {
                 float factor = a[i][p];
-                for (int j = rest; j < n; j++) {
-                    a[i][j] -= factor * a[p][j];
+                if (factor == 0f) {
+                    continue;
+                }
+                float[] rowP = a[p];
+                FloatVector negFactor = FloatVector.broadcast(SPECIES, -factor);
+
+                int j = rest;
+                for (; j < bound; j += SPECIES.length()) {
+                    FloatVector vp = FloatVector.fromArray(SPECIES, rowP, j);
+                    FloatVector vi = FloatVector.fromArray(SPECIES, rowI, j);
+                    vp.fma(negFactor, vi).intoArray(rowI, j);
+                }
+                for (; j < n; j++) {
+                    rowI[j] -= factor * rowP[j];
                 }
             }
         }
