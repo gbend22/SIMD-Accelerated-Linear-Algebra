@@ -1,12 +1,12 @@
 package com.performance;
 
 import com.decomp.LUDecomposition;
-import jdk.incubator.vector.FloatVector;
-import jdk.incubator.vector.VectorSpecies;
 
 public class BlockedLuSweep {
 
-    private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
+    private static final int GEMM_TILE_ROWS = 8;
+
+    private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
 
     private static void checkSquare(float[][] matrix) {
         int n = matrix.length;
@@ -66,28 +66,31 @@ public class BlockedLuSweep {
         }
     }
 
-    private static void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
-        int panelEnd = kk + kb;
-        int bound = SPECIES.loopBound(n - rest) + rest;
-        for (int i = rest; i < n; i++) {
-            float[] rowI = a[i];
-            for (int p = kk; p < panelEnd; p++) {
-                float factor = a[i][p];
-                if (factor == 0f) {
-                    continue;
-                }
-                float[] rowP = a[p];
-                FloatVector negFactor = FloatVector.broadcast(SPECIES, -factor);
+    private void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
+        int m = n - rest;
+        if (m == 0) {
+            return;
+        }
 
-                int j = rest;
-                for (; j < bound; j += SPECIES.length()) {
-                    FloatVector vp = FloatVector.fromArray(SPECIES, rowP, j);
-                    FloatVector vi = FloatVector.fromArray(SPECIES, rowI, j);
-                    vp.fma(negFactor, vi).intoArray(rowI, j);
-                }
-                for (; j < n; j++) {
-                    rowI[j] -= factor * rowP[j];
-                }
+        float[][] left = new float[m][kb];
+        for (int i = 0; i < m; i++) {
+            float[] src = a[rest + i];
+            float[] dst = left[i];
+            System.arraycopy(src, kk, dst, 0, kb);
+        }
+
+        float[][] right = new float[kb][m];
+        for (int p = 0; p < kb; p++) {
+            System.arraycopy(a[kk + p], rest, right[p], 0, m);
+        }
+
+        float[][] product = gemm.multiply(left, right, GEMM_TILE_ROWS);
+
+        for (int i = 0; i < m; i++) {
+            float[] dst = a[rest + i];
+            float[] prod = product[i];
+            for (int j = 0; j < m; j++) {
+                dst[rest + j] -= prod[j];
             }
         }
     }
