@@ -30,9 +30,30 @@ public class BlockedCholeskySweep {
             a[r] = matrix[r].clone();
         }
 
-        factorPanel(a, 0, n, n);
+        for (int kk = 0; kk < n; kk += blockSize) {
+            int kb = Math.min(blockSize, n - kk);
+            factorPanel(a, kk, kb, n);
+
+            int rest = kk + kb;
+            if (rest < n) {
+                updateTrailing(a, kk, kb, rest, n);
+            }
+        }
 
         return extractL(a, n);
+    }
+
+    private static void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
+        int panelEnd = kk + kb;
+        for (int j = rest; j < n; j++) {
+            for (int i = j; i < n; i++) {
+                float s = 0f;
+                for (int p = kk; p < panelEnd; p++) {
+                    s += a[i][p] * a[j][p];
+                }
+                a[i][j] -= s;
+            }
+        }
     }
 
     private static void factorPanel(float[][] a, int kk, int kb, int n) {
