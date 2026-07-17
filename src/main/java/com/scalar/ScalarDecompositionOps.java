@@ -1,6 +1,7 @@
 package com.scalar;
 
 import com.core.DecompositionBackend;
+import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 
 public class ScalarDecompositionOps implements DecompositionBackend {
@@ -82,6 +83,34 @@ public class ScalarDecompositionOps implements DecompositionBackend {
         }
 
         return new LUDecomposition(l, u, pivot, pivotSign);
+    }
+
+    public CholeskyDecomposition cholesky(float[][] matrix) {
+        checkSquare(matrix);
+
+        int n = matrix.length;
+        float[][] l = new float[n][n];
+
+        for (int i = 0; i < n; i++) {
+            float[] li = l[i];
+            for (int j = 0; j <= i; j++) {
+                float[] lj = l[j];
+                float sum = matrix[i][j];
+                for (int k = 0; k < j; k++) {
+                    sum -= li[k] * lj[k];
+                }
+                if (i == j) {
+                    if (sum <= 0f) {
+                        throw new ArithmeticException("Matrix is not positive definite");
+                    }
+                    li[i] = (float) Math.sqrt(sum);
+                } else {
+                    li[j] = sum / lj[j];
+                }
+            }
+        }
+
+        return new CholeskyDecomposition(l);
     }
 
     @Override
