@@ -1,6 +1,7 @@
 package com.simd;
 
 import com.core.DecompositionBackend;
+import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
@@ -99,6 +100,46 @@ public class SimdDecompositionOps implements DecompositionBackend {
         }
 
         return new LUDecomposition(l, u, pivot, pivotSign);
+    }
+
+    public CholeskyDecomposition cholesky(float[][] matrix) {
+        checkSquare(matrix);
+
+        int n = matrix.length;
+        float[][] l = new float[n][n];
+
+        for (int i = 0; i < n; i++) {
+            float[] li = l[i];
+            for (int j = 0; j <= i; j++) {
+                float[] lj = l[j];
+
+                int bound = SPECIES.loopBound(j);
+                FloatVector acc = FloatVector.zero(SPECIES);
+
+                int k = 0;
+                for (; k < bound; k += SPECIES.length()) {
+                    FloatVector vi = FloatVector.fromArray(SPECIES, li, k);
+                    FloatVector vj = FloatVector.fromArray(SPECIES, lj, k);
+                    acc = vi.fma(vj, acc);
+                }
+
+                float sum = matrix[i][j] - acc.reduceLanes(VectorOperators.ADD);
+                for (; k < j; k++) {
+                    sum -= li[k] * lj[k];
+                }
+
+                if (i == j) {
+                    if (sum <= 0f) {
+                        throw new ArithmeticException("Matrix is not positive definite");
+                    }
+                    li[i] = (float) Math.sqrt(sum);
+                } else {
+                    li[j] = sum / lj[j];
+                }
+            }
+        }
+
+        return new CholeskyDecomposition(l);
     }
 
     private static float[] forwardSubstitution(float[][] l, float[] rhs, int n) {
