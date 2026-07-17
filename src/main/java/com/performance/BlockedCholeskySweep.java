@@ -4,6 +4,10 @@ import com.decomp.CholeskyDecomposition;
 
 public class BlockedCholeskySweep {
 
+    private static final int GEMM_TILE_ROWS = 8;
+
+    private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
+
     private static void checkSquare(float[][] matrix) {
         int n = matrix.length;
         if (n == 0) {
@@ -43,15 +47,30 @@ public class BlockedCholeskySweep {
         return extractL(a, n);
     }
 
-    private static void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
-        int panelEnd = kk + kb;
-        for (int j = rest; j < n; j++) {
-            for (int i = j; i < n; i++) {
-                float s = 0f;
-                for (int p = kk; p < panelEnd; p++) {
-                    s += a[i][p] * a[j][p];
-                }
-                a[i][j] -= s;
+    private void updateTrailing(float[][] a, int kk, int kb, int rest, int n) {
+        int m = n - rest;
+        if (m == 0) {
+            return;
+        }
+
+        float[][] left = new float[m][kb];
+        for (int i = 0; i < m; i++) {
+            System.arraycopy(a[rest + i], kk, left[i], 0, kb);
+        }
+
+        float[][] right = new float[kb][m];
+        for (int p = 0; p < kb; p++) {
+            float[] dst = right[p];
+            for (int j = 0; j < m; j++) {
+                dst[j] = a[rest + j][kk + p];
+            }
+        }
+
+        float[][] product = gemm.multiply(left, right, GEMM_TILE_ROWS);
+
+        for (int j = 0; j < m; j++) {
+            for (int i = j; i < m; i++) {
+                a[rest + i][rest + j] -= product[i][j];
             }
         }
     }
