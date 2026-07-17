@@ -102,6 +102,7 @@ public class SimdDecompositionOps implements DecompositionBackend {
         return new LUDecomposition(l, u, pivot, pivotSign);
     }
 
+    @Override
     public CholeskyDecomposition cholesky(float[][] matrix) {
         checkSquare(matrix);
 
