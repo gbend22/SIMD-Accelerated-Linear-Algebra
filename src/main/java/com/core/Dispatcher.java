@@ -1,5 +1,6 @@
 package com.core;
 
+import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 import com.scalar.ScalarDecompositionOps;
 import com.scalar.ScalarMatrixOps;
@@ -136,6 +137,10 @@ public class Dispatcher {
 
     public static LUDecomposition lu(float[][] matrix) {
         return DECOMPOSITION_BACKEND.lu(matrix);
+    }
+
+    public static CholeskyDecomposition cholesky(float[][] matrix) {
+        return DECOMPOSITION_BACKEND.cholesky(matrix);
     }
 
     public static float[] solve(float[][] matrix, float[] b) {
