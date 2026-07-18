@@ -31,6 +31,33 @@ class DecompositionBackendParityTest {
         };
     }
 
+    private static float[][] symmetricPositiveDefinite7x7() {
+        return new float[][]{
+                {20, 2, 1, 0, 3, 1, 0},
+                {2, 22, 3, 4, 1, 2, 0},
+                {1, 3, 24, 1, 0, 2, 1},
+                {0, 4, 1, 26, 3, 1, 1},
+                {3, 1, 0, 3, 21, 0, 3},
+                {1, 2, 2, 1, 0, 23, 1},
+                {0, 0, 1, 1, 3, 1, 25}
+        };
+    }
+
+    private static float[][] reconstructLLt(float[][] l) {
+        int n = l.length;
+        float[][] out = new float[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                float s = 0f;
+                for (int k = 0; k < n; k++) {
+                    s += l[i][k] * l[j][k];
+                }
+                out[i][j] = s;
+            }
+        }
+        return out;
+    }
+
     private static float[][] multiply(float[][] a, float[][] b) {
         int n = a.length;
         float[][] out = new float[n][n];
@@ -68,6 +95,34 @@ class DecompositionBackendParityTest {
         for (int i = 0; i < a.length; i++) {
             assertArrayEquals(a[pivot[i]], product[i], DELTA);
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void cholesky_reconstructsMatrix(DecompositionBackend ops) {
+        float[][] a = symmetricPositiveDefinite7x7();
+        float[][] product = reconstructLLt(ops.cholesky(a).getL());
+        for (int i = 0; i < a.length; i++) {
+            assertArrayEquals(a[i], product[i], 1e-2f);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void cholesky_factorIsLowerTriangular(DecompositionBackend ops) {
+        float[][] l = ops.cholesky(symmetricPositiveDefinite7x7()).getL();
+        for (int i = 0; i < l.length; i++) {
+            for (int j = i + 1; j < l.length; j++) {
+                assertEquals(0f, l[i][j], 0f);
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void cholesky_notPositiveDefinite_throws(DecompositionBackend ops) {
+        float[][] a = {{1, 2}, {2, 1}};
+        assertThrows(ArithmeticException.class, () -> ops.cholesky(a));
     }
 
     @ParameterizedTest
@@ -126,6 +181,7 @@ class DecompositionBackendParityTest {
     void nonSquare_throws(DecompositionBackend ops) {
         float[][] a = {{1, 2, 3}, {4, 5, 6}};
         assertThrows(IllegalArgumentException.class, () -> ops.lu(a));
+        assertThrows(IllegalArgumentException.class, () -> ops.cholesky(a));
         assertThrows(IllegalArgumentException.class, () -> ops.solve(a, new float[]{1, 2}));
         assertThrows(IllegalArgumentException.class, () -> ops.inverse(a));
         assertThrows(IllegalArgumentException.class, () -> ops.determinant(a));
