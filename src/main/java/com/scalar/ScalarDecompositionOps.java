@@ -3,6 +3,7 @@ package com.scalar;
 import com.core.DecompositionBackend;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
+import com.decomp.QRDecomposition;
 
 public class ScalarDecompositionOps implements DecompositionBackend {
 
@@ -112,6 +113,97 @@ public class ScalarDecompositionOps implements DecompositionBackend {
         }
 
         return new CholeskyDecomposition(l);
+    }
+
+    public QRDecomposition qr(float[][] matrix) {
+        int m = matrix.length;
+        if (m == 0) {
+            throw new IllegalArgumentException("Matrix must not be empty");
+        }
+        int n = matrix[0].length;
+        for (float[] row : matrix) {
+            if (row.length != n) {
+                throw new IllegalArgumentException(
+                        "Matrix must be rectangular, got a row of length " + row.length + " expected " + n);
+            }
+        }
+        if (m < n) {
+            throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
+        }
+
+        float[][] r = new float[m][n];
+        for (int i = 0; i < m; i++) {
+            r[i] = matrix[i].clone();
+        }
+
+        float[][] q = new float[m][m];
+        for (int i = 0; i < m; i++) {
+            q[i][i] = 1f;
+        }
+
+        float[] v = new float[m];
+
+        for (int k = 0; k < n; k++) {
+            float normx = 0f;
+            for (int i = k; i < m; i++) {
+                float x = r[i][k];
+                normx += x * x;
+            }
+            normx = (float) Math.sqrt(normx);
+            if (normx == 0f) {
+                continue;
+            }
+
+            float rkk = r[k][k];
+            float alpha = rkk >= 0f ? -normx : normx;
+
+            for (int i = 0; i < k; i++) {
+                v[i] = 0f;
+            }
+            v[k] = rkk - alpha;
+            for (int i = k + 1; i < m; i++) {
+                v[i] = r[i][k];
+            }
+
+            float vnorm2 = 0f;
+            for (int i = k; i < m; i++) {
+                vnorm2 += v[i] * v[i];
+            }
+            if (vnorm2 == 0f) {
+                continue;
+            }
+            float beta = 2f / vnorm2;
+
+            for (int j = k; j < n; j++) {
+                float s = 0f;
+                for (int i = k; i < m; i++) {
+                    s += v[i] * r[i][j];
+                }
+                s *= beta;
+                for (int i = k; i < m; i++) {
+                    r[i][j] -= s * v[i];
+                }
+            }
+
+            for (int i = 0; i < m; i++) {
+                float s = 0f;
+                for (int l = k; l < m; l++) {
+                    s += q[i][l] * v[l];
+                }
+                s *= beta;
+                for (int l = k; l < m; l++) {
+                    q[i][l] -= s * v[l];
+                }
+            }
+        }
+
+        for (int j = 0; j < n; j++) {
+            for (int i = j + 1; i < m; i++) {
+                r[i][j] = 0f;
+            }
+        }
+
+        return new QRDecomposition(q, r);
     }
 
     @Override
