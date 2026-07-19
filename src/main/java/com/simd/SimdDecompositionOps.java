@@ -3,6 +3,7 @@ package com.simd;
 import com.core.DecompositionBackend;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
+import com.decomp.QRDecomposition;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
@@ -141,6 +142,140 @@ public class SimdDecompositionOps implements DecompositionBackend {
         }
 
         return new CholeskyDecomposition(l);
+    }
+
+    public QRDecomposition qr(float[][] matrix) {
+        int m = matrix.length;
+        if (m == 0) {
+            throw new IllegalArgumentException("Matrix must not be empty");
+        }
+        int n = matrix[0].length;
+        for (float[] row : matrix) {
+            if (row.length != n) {
+                throw new IllegalArgumentException(
+                        "Matrix must be rectangular, got a row of length " + row.length + " expected " + n);
+            }
+        }
+        if (m < n) {
+            throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
+        }
+
+        float[][] r = new float[m][n];
+        for (int i = 0; i < m; i++) {
+            r[i] = matrix[i].clone();
+        }
+
+        float[][] q = new float[m][m];
+        for (int i = 0; i < m; i++) {
+            q[i][i] = 1f;
+        }
+
+        float[] v = new float[m];
+        float[] w = new float[n];
+
+        for (int k = 0; k < n; k++) {
+            float normx = 0f;
+            for (int i = k; i < m; i++) {
+                float x = r[i][k];
+                normx += x * x;
+            }
+            normx = (float) Math.sqrt(normx);
+            if (normx == 0f) {
+                continue;
+            }
+
+            float rkk = r[k][k];
+            float alpha = rkk >= 0f ? -normx : normx;
+
+            for (int i = 0; i < k; i++) {
+                v[i] = 0f;
+            }
+            v[k] = rkk - alpha;
+            for (int i = k + 1; i < m; i++) {
+                v[i] = r[i][k];
+            }
+
+            float vnorm2 = 0f;
+            for (int i = k; i < m; i++) {
+                vnorm2 += v[i] * v[i];
+            }
+            if (vnorm2 == 0f) {
+                continue;
+            }
+            float beta = 2f / vnorm2;
+
+            int colBound = SPECIES.loopBound(n - k) + k;
+
+            for (int j = k; j < n; j++) {
+                w[j] = 0f;
+            }
+            for (int i = k; i < m; i++) {
+                float vi = v[i];
+                FloatVector bcast = FloatVector.broadcast(SPECIES, vi);
+                float[] ri = r[i];
+                int j = k;
+                for (; j < colBound; j += SPECIES.length()) {
+                    FloatVector wv = FloatVector.fromArray(SPECIES, w, j);
+                    FloatVector rv = FloatVector.fromArray(SPECIES, ri, j);
+                    bcast.fma(rv, wv).intoArray(w, j);
+                }
+                for (; j < n; j++) {
+                    w[j] += vi * ri[j];
+                }
+            }
+            for (int i = k; i < m; i++) {
+                float scale = beta * v[i];
+                FloatVector negScale = FloatVector.broadcast(SPECIES, -scale);
+                float[] ri = r[i];
+                int j = k;
+                for (; j < colBound; j += SPECIES.length()) {
+                    FloatVector wv = FloatVector.fromArray(SPECIES, w, j);
+                    FloatVector rv = FloatVector.fromArray(SPECIES, ri, j);
+                    negScale.fma(wv, rv).intoArray(ri, j);
+                }
+                for (; j < n; j++) {
+                    ri[j] -= scale * w[j];
+                }
+            }
+
+            int rowBound = SPECIES.loopBound(m - k) + k;
+
+            for (int i = 0; i < m; i++) {
+                float[] qi = q[i];
+
+                FloatVector acc = FloatVector.zero(SPECIES);
+                int l = k;
+                for (; l < rowBound; l += SPECIES.length()) {
+                    FloatVector qv = FloatVector.fromArray(SPECIES, qi, l);
+                    FloatVector vv = FloatVector.fromArray(SPECIES, v, l);
+                    acc = qv.fma(vv, acc);
+                }
+                float t = acc.reduceLanes(VectorOperators.ADD);
+                for (; l < m; l++) {
+                    t += qi[l] * v[l];
+                }
+
+                float scale = beta * t;
+                FloatVector negScale = FloatVector.broadcast(SPECIES, -scale);
+                l = k;
+                for (; l < rowBound; l += SPECIES.length()) {
+                    FloatVector qv = FloatVector.fromArray(SPECIES, qi, l);
+                    FloatVector vv = FloatVector.fromArray(SPECIES, v, l);
+                    negScale.fma(vv, qv).intoArray(qi, l);
+                }
+                for (; l < m; l++) {
+                    qi[l] -= scale * v[l];
+                }
+            }
+        }
+
+        for (int j = 0; j < n; j++) {
+            for (int i = j + 1; i < m; i++) {
+                r[i][j] = 0f;
+            }
+        }
+
+        return new QRDecomposition(q, r);
     }
 
     private static float[] forwardSubstitution(float[][] l, float[] rhs, int n) {
