@@ -6,6 +6,8 @@ public class BlockedCholeskySweep {
 
     private static final int GEMM_TILE_ROWS = 8;
 
+    private static final int SYRK_PANEL = 64;
+
     private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
 
     private static void checkSquare(float[][] matrix) {
@@ -58,19 +60,52 @@ public class BlockedCholeskySweep {
             System.arraycopy(a[rest + i], kk, left[i], 0, kb);
         }
 
-        float[][] right = new float[kb][m];
-        for (int p = 0; p < kb; p++) {
-            float[] dst = right[p];
-            for (int j = 0; j < m; j++) {
-                dst[j] = a[rest + j][kk + p];
+        for (int c0 = 0; c0 < m; c0 += SYRK_PANEL) {
+            int c1 = Math.min(c0 + SYRK_PANEL, m);
+            int pw = c1 - c0;
+
+            syrkDiagonal(a, left, rest, c0, c1, kb);
+
+            int belowRows = m - c1;
+            if (belowRows == 0) {
+                continue;
+            }
+
+            float[][] below = new float[belowRows][];
+            System.arraycopy(left, c1, below, 0, belowRows);
+
+            float[][] right = new float[kb][pw];
+            for (int p = 0; p < kb; p++) {
+                float[] dst = right[p];
+                for (int t = 0; t < pw; t++) {
+                    dst[t] = left[c0 + t][p];
+                }
+            }
+
+            float[][] product = gemm.multiply(below, right, GEMM_TILE_ROWS);
+
+            for (int i = 0; i < belowRows; i++) {
+                float[] arow = a[rest + c1 + i];
+                float[] prow = product[i];
+                for (int t = 0; t < pw; t++) {
+                    arow[rest + c0 + t] -= prow[t];
+                }
             }
         }
+    }
 
-        float[][] product = gemm.multiply(left, right, GEMM_TILE_ROWS);
-
-        for (int j = 0; j < m; j++) {
-            for (int i = j; i < m; i++) {
-                a[rest + i][rest + j] -= product[i][j];
+    private static void syrkDiagonal(float[][] a, float[][] left, int rest,
+                                     int c0, int c1, int kb) {
+        for (int i = c0; i < c1; i++) {
+            float[] li = left[i];
+            float[] arow = a[rest + i];
+            for (int j = c0; j <= i; j++) {
+                float[] lj = left[j];
+                float s = 0f;
+                for (int p = 0; p < kb; p++) {
+                    s += li[p] * lj[p];
+                }
+                arow[rest + j] -= s;
             }
         }
     }
