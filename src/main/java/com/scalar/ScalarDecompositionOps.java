@@ -115,6 +115,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
         return new CholeskyDecomposition(l);
     }
 
+    @Override
     public QRDecomposition qr(float[][] matrix) {
         int m = matrix.length;
         if (m == 0) {
