@@ -2,6 +2,7 @@ package com.core;
 
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
+import com.decomp.QRDecomposition;
 import com.scalar.ScalarDecompositionOps;
 import com.scalar.ScalarMatrixOps;
 import com.scalar.ScalarVectorOps;
@@ -141,6 +142,10 @@ public class Dispatcher {
 
     public static CholeskyDecomposition cholesky(float[][] matrix) {
         return DECOMPOSITION_BACKEND.cholesky(matrix);
+    }
+
+    public static QRDecomposition qr(float[][] matrix) {
+        return DECOMPOSITION_BACKEND.qr(matrix);
     }
 
     public static float[] solve(float[][] matrix, float[] b) {
