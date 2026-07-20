@@ -3,6 +3,7 @@ package com.matrix;
 import com.core.Dispatcher;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
+import com.decomp.QRDecomposition;
 
 /**
  * Public entry point for single-precision ({@code float}) matrix operations.
@@ -78,6 +79,10 @@ public class MatrixOps {
 
     public static CholeskyDecomposition cholesky(float[][] matrix) {
         return Dispatcher.cholesky(matrix);
+    }
+
+    public static QRDecomposition qr(float[][] matrix) {
+        return Dispatcher.qr(matrix);
     }
 
     public static float[] solve(float[][] matrix, float[] b) {
