@@ -4,6 +4,8 @@ import com.core.DecompositionBackend;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 import com.decomp.QRDecomposition;
+import com.performance.BlockedLuSweep;
+import com.performance.BlockedQrSweep;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
@@ -11,6 +13,14 @@ import jdk.incubator.vector.VectorSpecies;
 public class SimdDecompositionOps implements DecompositionBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
+
+    private static final int LU_BLOCK_THRESHOLD = 256;
+    private static final int LU_BLOCK_SIZE = 64;
+    private static final int QR_BLOCK_THRESHOLD = 128;
+    private static final int QR_BLOCK_SIZE = 32;
+
+    private final BlockedLuSweep blockedLu = new BlockedLuSweep();
+    private final BlockedQrSweep blockedQr = new BlockedQrSweep();
 
     private static void checkSquare(float[][] matrix) {
         int n = matrix.length;
@@ -30,6 +40,10 @@ public class SimdDecompositionOps implements DecompositionBackend {
         checkSquare(matrix);
 
         int n = matrix.length;
+
+        if (n >= LU_BLOCK_THRESHOLD) {
+            return blockedLu.lu(matrix, LU_BLOCK_SIZE);
+        }
 
         float[][] a = new float[n][n];
         for (int r = 0; r < n; r++) {
@@ -159,6 +173,10 @@ public class SimdDecompositionOps implements DecompositionBackend {
         }
         if (m < n) {
             throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
+        }
+
+        if (n >= QR_BLOCK_THRESHOLD) {
+            return blockedQr.qr(matrix, QR_BLOCK_SIZE);
         }
 
         float[][] r = new float[m][n];
