@@ -1,6 +1,7 @@
 package com.simd;
 
 import com.core.MatrixBackend;
+import com.performance.RegisterTileSweepMatrixOps;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
@@ -14,6 +15,10 @@ import jdk.incubator.vector.VectorSpecies;
 public class SimdMatrixOps implements MatrixBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
+
+    private static final int MULTIPLY_MR = 8;
+
+    private final RegisterTileSweepMatrixOps registerTile = new RegisterTileSweepMatrixOps();
 
     private static void checkSameDimensions(float[][] a, float[][] b) {
         if (a.length != b.length || a[0].length != b[0].length) {
@@ -90,44 +95,7 @@ public class SimdMatrixOps implements MatrixBackend {
 
     @Override
     public float[][] multiply(float[][] a, float[][] b) {
-        if (a[0].length != b.length) {
-            throw new IllegalArgumentException("Matrix dimensions do not allow multiplication");
-        }
-
-        int rows = a.length;
-        int cols = b[0].length;
-        int inner = b.length;
-
-        float[][] result = new float[rows][cols];
-
-        float[][] bTransposed = transpose(b);
-
-        for (int i = 0; i < rows; i++) {
-
-            for (int j = 0; j < cols; j++) {
-
-                int k = 0;
-
-                int bound = SPECIES.loopBound(inner);
-
-                var acc = FloatVector.zero(SPECIES);
-
-                for (; k < bound; k += SPECIES.length()) {
-                    var va = FloatVector.fromArray(SPECIES, a[i], k);
-                    var vb = FloatVector.fromArray(SPECIES, bTransposed[j], k);
-                    acc = va.fma(vb, acc);
-                }
-
-                float sum = acc.reduceLanes(VectorOperators.ADD);
-                for (; k < inner; k++) {
-                    sum += a[i][k] * bTransposed[j][k];
-                }
-
-                result[i][j] = sum;
-            }
-        }
-
-        return result;
+        return registerTile.multiply(a, b, MULTIPLY_MR);
     }
 
     @Override
