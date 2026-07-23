@@ -2,6 +2,13 @@ package com.performance;
 
 import com.decomp.QRDecomposition;
 
+/**
+ * Blocked Householder QR decomposition using the compact WY representation. Each panel of
+ * {@code blockSize} columns is reduced with ordinary Householder reflectors, then the
+ * product of those reflectors is assembled as {@code I - V*T*Vᵀ} so that both the trailing
+ * update and the formation of {@code Q} run as matrix multiplies through the register-tiled
+ * GEMM kernel. Internal, not part of the public API.
+ */
 public class BlockedQrSweep {
 
     private static final int GEMM_TILE_ROWS = 8;
@@ -25,6 +32,16 @@ public class BlockedQrSweep {
         }
     }
 
+    /**
+     * Factors a matrix with at least as many rows as columns as {@code A = Q * R} using
+     * blocked Householder QR.
+     *
+     * @param matrix    an {@code m x n} matrix with {@code m >= n}
+     * @param blockSize the panel width, in columns
+     * @return the orthogonal factor {@code Q} and the upper-triangular factor {@code R}
+     * @throws IllegalArgumentException if {@code matrix} is empty, not rectangular, has
+     *         fewer rows than columns, or if {@code blockSize} is less than {@code 1}
+     */
     public QRDecomposition qr(float[][] matrix, int blockSize) {
         checkShape(matrix);
         if (blockSize < 1) {

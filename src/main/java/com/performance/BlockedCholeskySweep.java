@@ -2,6 +2,12 @@ package com.performance;
 
 import com.decomp.CholeskyDecomposition;
 
+/**
+ * Right-looking blocked Cholesky decomposition. Each step factors a panel of
+ * {@code blockSize} columns and then applies the symmetric trailing update: the diagonal
+ * block is updated with a scalar rank-k sweep and the block below it through the
+ * register-tiled GEMM kernel. Internal, not part of the public API.
+ */
 public class BlockedCholeskySweep {
 
     private static final int GEMM_TILE_ROWS = 8;
@@ -23,6 +29,17 @@ public class BlockedCholeskySweep {
         }
     }
 
+    /**
+     * Factors a symmetric positive-definite matrix as {@code A = L * Lᵀ} using blocked
+     * Cholesky.
+     *
+     * @param matrix    a symmetric positive-definite {@code n x n} matrix
+     * @param blockSize the panel width, in columns
+     * @return the lower-triangular factor {@code L}
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square, or if
+     *         {@code blockSize} is less than {@code 1}
+     * @throws ArithmeticException      if {@code matrix} is not positive definite
+     */
     public CholeskyDecomposition cholesky(float[][] matrix, int blockSize) {
         checkSquare(matrix);
         if (blockSize < 1) {

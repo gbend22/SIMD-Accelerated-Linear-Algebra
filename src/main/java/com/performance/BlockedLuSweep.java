@@ -2,6 +2,12 @@ package com.performance;
 
 import com.decomp.LUDecomposition;
 
+/**
+ * Right-looking blocked LU decomposition with partial pivoting. Each step factors a panel
+ * of {@code blockSize} columns, applies the triangular update to the panel rows, and casts
+ * the trailing-submatrix update as a single matrix multiply, so most of the work runs
+ * through the register-tiled GEMM kernel. Internal, not part of the public API.
+ */
 public class BlockedLuSweep {
 
     private static final int GEMM_TILE_ROWS = 8;
@@ -21,6 +27,16 @@ public class BlockedLuSweep {
         }
     }
 
+    /**
+     * Factors a square matrix as {@code P * A = L * U} using blocked LU with partial
+     * pivoting.
+     *
+     * @param matrix    a square {@code n x n} matrix
+     * @param blockSize the panel width, in columns; larger panels shift more work into GEMM
+     * @return the {@code L} and {@code U} factors together with the row permutation
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square, or if
+     *         {@code blockSize} is less than {@code 1}
+     */
     public LUDecomposition lu(float[][] matrix, int blockSize) {
         checkSquare(matrix);
         if (blockSize < 1) {
