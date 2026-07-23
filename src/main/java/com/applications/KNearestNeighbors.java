@@ -6,6 +6,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * K-nearest-neighbours classifier built on the JavaSIMDLinalg vector operations. Training
+ * simply stores the labelled samples; a prediction ranks the stored samples by Euclidean
+ * distance to the query and takes a majority vote among the {@code k} closest, breaking
+ * ties towards the smaller label.
+ *
+ * <p>Instances are stateful: call {@link #fit(float[][], int[])} (or build a fitted model
+ * with {@link #fromTrainingData(int, float[][], int[])}) before calling
+ * {@link #predict(float[])}. Not thread-safe.
+ */
 public class KNearestNeighbors {
 
     private final int k;
@@ -14,6 +24,12 @@ public class KNearestNeighbors {
     private int[] trainingLabels;
     private boolean fitted;
 
+    /**
+     * Creates a classifier that votes among the {@code k} nearest neighbours.
+     *
+     * @param k the number of neighbours to consult per prediction
+     * @throws IllegalArgumentException if {@code k} is less than {@code 1}
+     */
     public KNearestNeighbors(int k) {
         if (k < 1) {
             throw new IllegalArgumentException("k must be at least 1, got " + k);
@@ -21,12 +37,32 @@ public class KNearestNeighbors {
         this.k = k;
     }
 
+    /**
+     * Creates a classifier and immediately fits it to the given labelled data.
+     *
+     * @param k the number of neighbours to consult per prediction
+     * @param x the training samples, one row per sample
+     * @param y the label for each training sample
+     * @return a fitted classifier ready for {@link #predict(float[])}
+     * @throws IllegalArgumentException if {@code k} is less than {@code 1}, the data is
+     *         empty, the sample and label counts differ, {@code k} exceeds the sample
+     *         count, or the rows differ in length
+     */
     public static KNearestNeighbors fromTrainingData(int k, float[][] x, int[] y) {
         KNearestNeighbors model = new KNearestNeighbors(k);
         model.fit(x, y);
         return model;
     }
 
+    /**
+     * Stores the labelled training set used for subsequent predictions.
+     *
+     * @param x the training samples, one row per sample, all with the same number of
+     *          features
+     * @param y the label for each training sample
+     * @throws IllegalArgumentException if {@code x} is empty, the sample and label counts
+     *         differ, {@code k} exceeds the sample count, or the rows differ in length
+     */
     public void fit(float[][] x, int[] y) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
@@ -55,6 +91,15 @@ public class KNearestNeighbors {
         fitted = true;
     }
 
+    /**
+     * Classifies a single sample by majority vote among its {@code k} nearest neighbours.
+     * Ties in the vote are broken in favour of the smaller label.
+     *
+     * @param sample the feature vector to classify
+     * @return the predicted label
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if {@code sample} has the wrong number of features
+     */
     public int predict(float[] sample) {
         requireFitted();
         if (sample.length != trainingFeatures[0].length) {
@@ -91,6 +136,14 @@ public class KNearestNeighbors {
         return bestLabel;
     }
 
+    /**
+     * Classifies each sample in a batch.
+     *
+     * @param x the samples to classify, one row per sample
+     * @return an array of predicted labels, one per input row
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if any sample has the wrong number of features
+     */
     public int[] predict(float[][] x) {
         requireFitted();
         int[] predictions = new int[x.length];
@@ -100,10 +153,21 @@ public class KNearestNeighbors {
         return predictions;
     }
 
+    /**
+     * Returns the number of neighbours consulted per prediction.
+     *
+     * @return the neighbour count {@code k}
+     */
     public int k() {
         return k;
     }
 
+    /**
+     * Returns the number of stored training samples.
+     *
+     * @return the training set size
+     * @throws IllegalStateException if the model has not been fitted
+     */
     public int trainingSize() {
         requireFitted();
         return trainingLabels.length;

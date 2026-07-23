@@ -4,6 +4,18 @@ import com.vector.VectorOps;
 
 import java.util.Random;
 
+/**
+ * K-means clustering built on the JavaSIMDLinalg vector operations. Partitions samples
+ * into {@code k} clusters with Lloyd's algorithm: assign each sample to its nearest
+ * centroid (by Euclidean distance), move each centroid to the mean of its members, and
+ * repeat until the assignments stop changing or an iteration cap is reached. Initial
+ * centroids are distinct random samples chosen from a fixed seed, so a given input clusters
+ * reproducibly.
+ *
+ * <p>Instances are stateful: call {@link #fit(float[][])} (or build a pre-fitted model with
+ * {@link #fromCentroids(float[][])}) before calling {@link #predict(float[])} or the
+ * accessors. Not thread-safe.
+ */
 public class KMeans {
 
     private static final int DEFAULT_MAX_ITERATIONS = 100;
@@ -18,10 +30,26 @@ public class KMeans {
     private int iterations;
     private boolean fitted;
 
+    /**
+     * Creates a model that finds {@code k} clusters, using the default iteration cap and
+     * seed.
+     *
+     * @param k the number of clusters to form
+     * @throws IllegalArgumentException if {@code k} is less than {@code 1}
+     */
     public KMeans(int k) {
         this(k, DEFAULT_MAX_ITERATIONS, DEFAULT_SEED);
     }
 
+    /**
+     * Creates a model with full control over the clustering parameters.
+     *
+     * @param k             the number of clusters to form
+     * @param maxIterations the maximum number of assign/update iterations
+     * @param seed          the seed for the random initial-centroid selection
+     * @throws IllegalArgumentException if {@code k} or {@code maxIterations} is less than
+     *         {@code 1}
+     */
     public KMeans(int k, int maxIterations, long seed) {
         if (k < 1) {
             throw new IllegalArgumentException("k must be at least 1, got " + k);
@@ -34,6 +62,16 @@ public class KMeans {
         this.seed = seed;
     }
 
+    /**
+     * Creates a pre-fitted model directly from known centroids, skipping training &mdash;
+     * useful for reusing centroids learned elsewhere. The resulting model reports {@code 0}
+     * iterations.
+     *
+     * @param centroids the cluster centroids, one row per cluster, all of equal length
+     * @return a fitted model ready for {@link #predict(float[])}
+     * @throws IllegalArgumentException if {@code centroids} is empty or its rows differ in
+     *         length
+     */
     public static KMeans fromCentroids(float[][] centroids) {
         if (centroids.length == 0) {
             throw new IllegalArgumentException("Centroids must not be empty");
@@ -55,6 +93,14 @@ public class KMeans {
         return model;
     }
 
+    /**
+     * Fits the model to a training set, learning the cluster centroids in place.
+     *
+     * @param x the training samples, one row per sample, all with the same number of
+     *          features
+     * @throws IllegalArgumentException if {@code x} is empty, {@code k} exceeds the number
+     *         of samples, or the rows differ in length
+     */
     public void fit(float[][] x) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
@@ -84,6 +130,14 @@ public class KMeans {
         fitted = true;
     }
 
+    /**
+     * Assigns a single sample to the index of its nearest centroid.
+     *
+     * @param sample the feature vector to classify
+     * @return the index of the closest cluster, in {@code [0, k)}
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if {@code sample} has the wrong number of features
+     */
     public int predict(float[] sample) {
         requireFitted();
         if (sample.length != centroids[0].length) {
@@ -94,6 +148,14 @@ public class KMeans {
         return nearestCentroid(sample);
     }
 
+    /**
+     * Assigns each sample in a batch to its nearest centroid.
+     *
+     * @param x the samples to classify, one row per sample
+     * @return an array of cluster indices, one per input row
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if any sample has the wrong number of features
+     */
     public int[] predict(float[][] x) {
         requireFitted();
         int[] predictions = new int[x.length];
@@ -160,6 +222,12 @@ public class KMeans {
         return result;
     }
 
+    /**
+     * Returns a fresh copy of the learned centroids.
+     *
+     * @return a new array holding the cluster centroids, one row per cluster
+     * @throws IllegalStateException if the model has not been fitted
+     */
     public float[][] centroids() {
         requireFitted();
         float[][] copy = new float[centroids.length][];
@@ -169,10 +237,21 @@ public class KMeans {
         return copy;
     }
 
+    /**
+     * Returns the number of clusters this model forms.
+     *
+     * @return the cluster count {@code k}
+     */
     public int k() {
         return k;
     }
 
+    /**
+     * Returns the number of iterations performed by the last {@link #fit(float[][])}.
+     *
+     * @return the iteration count ({@code 0} for a model built from known centroids)
+     * @throws IllegalStateException if the model has not been fitted
+     */
     public int iterations() {
         requireFitted();
         return iterations;

@@ -5,6 +5,16 @@ import com.vector.VectorOps;
 
 import java.util.Arrays;
 
+/**
+ * Ordinary least-squares linear regression built on the JavaSIMDLinalg matrix operations.
+ * Fitting solves the normal equations {@code (XᵀX) β = Xᵀy} for the coefficients using the
+ * library's matrix multiply and linear solver; by default an intercept is included by
+ * augmenting the design matrix with a constant column.
+ *
+ * <p>Instances are stateful: call {@link #fit(float[][], float[])} (or build a model with
+ * {@link #fromParameters(float[], float)}) before calling {@link #predict(float[])} or the
+ * accessors. Not thread-safe.
+ */
 public class LinearRegression {
 
     private final boolean fitIntercept;
@@ -13,14 +23,31 @@ public class LinearRegression {
     private float intercept;
     private boolean fitted;
 
+    /**
+     * Creates a model that fits an intercept term.
+     */
     public LinearRegression() {
         this(true);
     }
 
+    /**
+     * Creates a model, optionally without an intercept term.
+     *
+     * @param fitIntercept whether to fit an intercept; if {@code false} the fitted
+     *                     relationship passes through the origin
+     */
     public LinearRegression(boolean fitIntercept) {
         this.fitIntercept = fitIntercept;
     }
 
+    /**
+     * Creates a pre-fitted model from known coefficients and intercept, skipping training.
+     *
+     * @param coefficients the per-feature coefficients
+     * @param intercept    the intercept term
+     * @return a fitted model ready for {@link #predict(float[])}
+     * @throws IllegalArgumentException if {@code coefficients} is empty
+     */
     public static LinearRegression fromParameters(float[] coefficients, float intercept) {
         if (coefficients.length == 0) {
             throw new IllegalArgumentException("Coefficients must not be empty");
@@ -32,6 +59,17 @@ public class LinearRegression {
         return model;
     }
 
+    /**
+     * Fits the model to a training set by solving the normal equations.
+     *
+     * @param x the training samples, one row per sample, all with the same number of
+     *          features
+     * @param y the target value for each training sample
+     * @throws IllegalArgumentException if {@code x} is empty, the sample and target counts
+     *         differ, or the rows differ in length
+     * @throws ArithmeticException      if the normal equations are singular (for example
+     *         when features are perfectly collinear)
+     */
     public void fit(float[][] x, float[] y) {
         if (x.length == 0) {
             throw new IllegalArgumentException("Training set must not be empty");
@@ -66,6 +104,15 @@ public class LinearRegression {
         fitted = true;
     }
 
+    /**
+     * Predicts the target value for a single sample as
+     * {@code intercept + dot(coefficients, sample)}.
+     *
+     * @param sample the feature vector
+     * @return the predicted value
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if {@code sample} has the wrong number of features
+     */
     public float predict(float[] sample) {
         requireFitted();
         if (sample.length != coefficients.length) {
@@ -76,6 +123,14 @@ public class LinearRegression {
         return intercept + VectorOps.dot(coefficients, sample);
     }
 
+    /**
+     * Predicts the target value for each sample in a batch.
+     *
+     * @param x the samples, one row per sample
+     * @return an array of predictions, one per input row
+     * @throws IllegalStateException    if the model has not been fitted
+     * @throws IllegalArgumentException if any sample has the wrong number of features
+     */
     public float[] predict(float[][] x) {
         requireFitted();
         float[] predictions = new float[x.length];
@@ -85,11 +140,23 @@ public class LinearRegression {
         return predictions;
     }
 
+    /**
+     * Returns a fresh copy of the fitted per-feature coefficients.
+     *
+     * @return a new array of coefficients
+     * @throws IllegalStateException if the model has not been fitted
+     */
     public float[] coefficients() {
         requireFitted();
         return coefficients.clone();
     }
 
+    /**
+     * Returns the fitted intercept term ({@code 0} when the model was created without one).
+     *
+     * @return the intercept
+     * @throws IllegalStateException if the model has not been fitted
+     */
     public float intercept() {
         requireFitted();
         return intercept;
