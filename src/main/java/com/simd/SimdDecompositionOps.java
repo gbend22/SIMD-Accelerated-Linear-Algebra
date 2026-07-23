@@ -10,6 +10,11 @@ import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorOperators;
 import jdk.incubator.vector.VectorSpecies;
 
+/**
+ * SIMD implementation of {@link com.core.DecompositionBackend}, built on the Java Vector
+ * API ({@code jdk.incubator.vector}). Large inputs are routed to the blocked kernels in
+ * {@code com.performance}; internal, not part of the public API.
+ */
 public class SimdDecompositionOps implements DecompositionBackend {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
