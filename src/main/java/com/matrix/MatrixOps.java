@@ -73,26 +73,79 @@ public class MatrixOps {
         return Dispatcher.transpose(matrix);
     }
 
+    /**
+     * Computes the LU decomposition with partial pivoting of a square matrix,
+     * factoring the row-permuted matrix as {@code P * A = L * U}.
+     *
+     * @param matrix a square {@code n x n} matrix
+     * @return the {@code L} and {@code U} factors together with the row permutation
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square
+     */
     public static LUDecomposition lu(float[][] matrix) {
         return Dispatcher.lu(matrix);
     }
 
+    /**
+     * Computes the Cholesky decomposition of a symmetric positive-definite matrix,
+     * factoring it as {@code A = L * Lᵀ}.
+     *
+     * @param matrix a symmetric positive-definite {@code n x n} matrix
+     * @return the lower-triangular factor {@code L}
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square
+     * @throws ArithmeticException      if {@code matrix} is not positive definite
+     */
     public static CholeskyDecomposition cholesky(float[][] matrix) {
         return Dispatcher.cholesky(matrix);
     }
 
+    /**
+     * Computes the QR decomposition of a matrix with at least as many rows as columns,
+     * factoring it as {@code A = Q * R} with {@code Q} orthogonal and {@code R}
+     * upper-triangular.
+     *
+     * @param matrix an {@code m x n} matrix with {@code m >= n}
+     * @return the orthogonal factor {@code Q} and the upper-triangular factor {@code R}
+     * @throws IllegalArgumentException if {@code matrix} is empty, not rectangular,
+     *         or has fewer rows than columns
+     */
     public static QRDecomposition qr(float[][] matrix) {
         return Dispatcher.qr(matrix);
     }
 
+    /**
+     * Solves the linear system {@code A * x = b} for a square matrix {@code A}, using
+     * LU decomposition with partial pivoting.
+     *
+     * @param matrix the square {@code n x n} coefficient matrix {@code A}
+     * @param b      the right-hand side vector of length {@code n}
+     * @return the solution vector {@code x} of length {@code n}
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square, or if
+     *         {@code b.length} does not equal the matrix dimension
+     * @throws ArithmeticException      if {@code matrix} is singular
+     */
     public static float[] solve(float[][] matrix, float[] b) {
         return Dispatcher.solve(matrix, b);
     }
 
+    /**
+     * Computes the determinant of a square matrix via LU decomposition.
+     *
+     * @param matrix a square {@code n x n} matrix
+     * @return the determinant of {@code matrix}
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square
+     */
     public static float determinant(float[][] matrix) {
         return Dispatcher.determinant(matrix);
     }
 
+    /**
+     * Computes the inverse of a square matrix via LU decomposition.
+     *
+     * @param matrix a square {@code n x n} matrix
+     * @return a new {@code n x n} matrix that is the inverse of {@code matrix}
+     * @throws IllegalArgumentException if {@code matrix} is empty or not square
+     * @throws ArithmeticException      if {@code matrix} is singular
+     */
     public static float[][] inverse(float[][] matrix) {
         return Dispatcher.inverse(matrix);
     }
