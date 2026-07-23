@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  * load, then binds the {@link VectorBackend} and {@link MatrixBackend} implementations
  * the library uses, falling back to the scalar backends when SIMD is unavailable.
  *
- * <p>Not part of the public API &mdash; application code should call
+ * <p>Not part of the public API; application code should call
  * {@link com.vector.VectorOps} and {@link com.matrix.MatrixOps} instead.
  */
 public class Dispatcher {

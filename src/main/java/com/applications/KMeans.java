@@ -63,8 +63,8 @@ public class KMeans {
     }
 
     /**
-     * Creates a pre-fitted model directly from known centroids, skipping training &mdash;
-     * useful for reusing centroids learned elsewhere. The resulting model reports {@code 0}
+     * Creates a pre-fitted model directly from known centroids, skipping training. Useful
+     * for reusing centroids learned elsewhere. The resulting model reports {@code 0}
      * iterations.
      *
      * @param centroids the cluster centroids, one row per cluster, all of equal length

@@ -8,7 +8,7 @@ import com.core.Dispatcher;
  * <p>This is the façade of the JavaSIMDLinalg library. Each method delegates to a
  * backend that is selected once at JVM start-up: a SIMD backend built on the Java
  * Vector API when the running CPU exposes a usable vector width, or a plain scalar
- * backend otherwise. Backend selection is transparent &mdash; callers always use the
+ * backend otherwise. Backend selection is transparent; callers always use the
  * same methods and receive numerically equivalent results regardless of which backend
  * is active.
  *
