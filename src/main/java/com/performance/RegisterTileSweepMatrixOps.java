@@ -3,10 +3,29 @@ package com.performance;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
 
+/**
+ * Register-tiled SIMD matrix multiply with a tunable row-tile height, used to sweep the
+ * tile size in benchmarks and pick the fastest variant. The winning configuration
+ * ({@code mr = 8}) backs the public
+ * {@link com.matrix.MatrixOps#multiply(float[][], float[][])} through {@code SimdMatrixOps},
+ * and the blocked LU, Cholesky, and QR kernels use it for their GEMM-heavy updates.
+ * Internal, not part of the public API.
+ */
 public class RegisterTileSweepMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
 
+    /**
+     * Multiplies {@code a * b} using a register tile that is {@code mr} rows tall.
+     *
+     * @param a  an {@code m x n} matrix
+     * @param b  an {@code n x p} matrix
+     * @param mr the number of rows of {@code A} handled per tile; one of
+     *           {@code 1, 2, 4, 6, 8}
+     * @return a new {@code m x p} product matrix
+     * @throws IllegalArgumentException if the column count of {@code a} does not equal the
+     *         row count of {@code b}, or if {@code mr} is not a supported tile height
+     */
     public float[][] multiply(float[][] a, float[][] b, int mr) {
         if (a[0].length != b.length) {
             throw new IllegalArgumentException("Matrix dimensions do not allow multiplication");

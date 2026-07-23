@@ -3,6 +3,13 @@ package com.performance;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
 
+/**
+ * Register-tiled SIMD matrix multiply with an added layer of cache blocking. The product
+ * is built over {@code KC x NC} panels of {@code B} so each panel stays resident in cache
+ * while it is reused across the rows of {@code A}, with partial results accumulated into
+ * {@code C}. One of several matrix-multiply strategies explored in {@code com.performance};
+ * internal, not part of the public API.
+ */
 public class CacheBlockedTiledSimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

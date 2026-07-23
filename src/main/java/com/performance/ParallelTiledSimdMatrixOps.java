@@ -5,6 +5,13 @@ import jdk.incubator.vector.VectorSpecies;
 
 import java.util.stream.IntStream;
 
+/**
+ * Register-tiled SIMD matrix multiply that spreads the row tiles across threads. Small
+ * problems run on a single thread; once the work (rows &times; columns &times; depth)
+ * exceeds a fixed threshold the tiles are distributed with a parallel stream. One of
+ * several matrix-multiply strategies explored in {@code com.performance}; internal, not
+ * part of the public API.
+ */
 public class ParallelTiledSimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

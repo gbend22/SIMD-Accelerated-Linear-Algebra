@@ -3,6 +3,13 @@ package com.performance;
 import jdk.incubator.vector.FloatVector;
 import jdk.incubator.vector.VectorSpecies;
 
+/**
+ * Register-tiled SIMD matrix multiply. Processes four rows of {@code A} at a time and
+ * accumulates each output tile with broadcast-and-FMA over contiguous columns of
+ * {@code B}, so no transpose or column gathering is needed. One of several
+ * matrix-multiply strategies explored in {@code com.performance}; internal, not part of
+ * the public API.
+ */
 public class TiledSimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

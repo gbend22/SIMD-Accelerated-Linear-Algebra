@@ -6,6 +6,12 @@ import jdk.incubator.vector.VectorSpecies;
 
 import java.util.stream.IntStream;
 
+/**
+ * Row-parallel SIMD matrix multiply. {@code B} is transposed once so every output element
+ * is a contiguous vectorized dot product, and the rows of the result are computed across
+ * threads with a parallel stream. One of several matrix-multiply strategies explored in
+ * {@code com.performance}; internal, not part of the public API.
+ */
 public class ParallelSimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;

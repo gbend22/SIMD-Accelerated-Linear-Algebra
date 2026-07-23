@@ -5,6 +5,13 @@ import jdk.incubator.vector.VectorSpecies;
 
 import java.util.stream.IntStream;
 
+/**
+ * The cache-blocked, register-tiled SIMD matrix multiply parallelized across row strips.
+ * Small problems run on a single thread; larger ones split the rows into roughly one strip
+ * per core and run the cache-blocked kernel on each strip in parallel. One of several
+ * matrix-multiply strategies explored in {@code com.performance}; internal, not part of
+ * the public API.
+ */
 public class ParallelCacheBlockedTiledSimdMatrixOps {
 
     private static final VectorSpecies<Float> SPECIES = FloatVector.SPECIES_PREFERRED;
