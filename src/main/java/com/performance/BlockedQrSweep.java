@@ -1,5 +1,6 @@
 package com.performance;
 
+import com.core.MatrixValidation;
 import com.decomp.QRDecomposition;
 
 /**
@@ -15,23 +16,6 @@ public class BlockedQrSweep {
 
     private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
 
-    private static void checkShape(float[][] matrix) {
-        int m = matrix.length;
-        if (m == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        int n = matrix[0].length;
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be rectangular, got a row of length " + row.length + " expected " + n);
-            }
-        }
-        if (m < n) {
-            throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
-        }
-    }
-
     /**
      * Factors a matrix with at least as many rows as columns as {@code A = Q * R} using
      * blocked Householder QR.
@@ -43,13 +27,14 @@ public class BlockedQrSweep {
      *         fewer rows than columns, or if {@code blockSize} is less than {@code 1}
      */
     public QRDecomposition qr(float[][] matrix, int blockSize) {
-        checkShape(matrix);
+        int m = matrix.length;
+        int n = MatrixValidation.requireRectangular(matrix, "matrix");
+        if (m < n) {
+            throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
+        }
         if (blockSize < 1) {
             throw new IllegalArgumentException("blockSize must be at least 1, got " + blockSize);
         }
-
-        int m = matrix.length;
-        int n = matrix[0].length;
 
         float[][] a = new float[m][n];
         for (int i = 0; i < m; i++) {

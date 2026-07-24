@@ -137,4 +137,60 @@ class MatrixBackendParityTest {
         assertEquals(210f, result[0], DELTA);
         assertEquals(420f, result[1], DELTA);
     }
+    @ParameterizedTest
+    @MethodSource("backends")
+    void add_raggedMatrix_throws(MatrixBackend ops) {
+        float[][] ragged = {{1}, {2, 3}};
+        float[][] matchingFirstRows = {{4}, {5, 6}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.add(ragged, matchingFirstRows));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void multiplyMatrixVector_raggedMatrix_throws(MatrixBackend ops) {
+        float[][] ragged = {{1, 2}, {3}};
+
+        assertThrows(IllegalArgumentException.class,
+                () -> ops.multiply(ragged, new float[]{1, 1}));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void multiplyMatrixMatrix_raggedOperand_throws(MatrixBackend ops) {
+        float[][] valid = {{1, 2}, {3, 4}};
+        float[][] ragged = {{1, 2}, {3}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.multiply(ragged, valid));
+        assertThrows(IllegalArgumentException.class, () -> ops.multiply(valid, ragged));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void transpose_raggedMatrix_throws(MatrixBackend ops) {
+        float[][] ragged = {{1, 2}, {3}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.transpose(ragged));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void emptyAndZeroColumnMatrices_throw(MatrixBackend ops) {
+        float[][] empty = new float[0][0];
+        float[][] zeroColumns = {new float[0]};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.add(empty, empty));
+        assertThrows(IllegalArgumentException.class,
+                () -> ops.multiply(empty, new float[0]));
+        assertThrows(IllegalArgumentException.class, () -> ops.multiply(empty, empty));
+        assertThrows(IllegalArgumentException.class, () -> ops.transpose(empty));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> ops.add(zeroColumns, zeroColumns));
+        assertThrows(IllegalArgumentException.class,
+                () -> ops.multiply(zeroColumns, new float[0]));
+        assertThrows(IllegalArgumentException.class,
+                () -> ops.multiply(zeroColumns, zeroColumns));
+        assertThrows(IllegalArgumentException.class, () -> ops.transpose(zeroColumns));
+    }
 }

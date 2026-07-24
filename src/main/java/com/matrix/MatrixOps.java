@@ -11,8 +11,9 @@ import com.decomp.QRDecomposition;
  * <p>Like {@link com.vector.VectorOps}, this façade delegates to a SIMD or scalar
  * backend chosen once at JVM start-up, transparently to the caller. Matrices are
  * represented as row-major {@code float[][]} arrays: {@code m[r][c]} is the element in
- * row {@code r} and column {@code c}, and every row is expected to have the same length
- * (a rectangular matrix). Arguments are expected to be non-{@code null}.
+ * row {@code r} and column {@code c}. Matrices must be non-empty and rectangular:
+ * every row must be non-{@code null}, have the same positive length, and arguments must
+ * be non-{@code null}.
  *
  * <p>Every method allocates and returns a new result; inputs are never modified.
  * This class is stateless, thread-safe, and cannot be instantiated.
@@ -29,7 +30,8 @@ public class MatrixOps {
      * @param a the first matrix
      * @param b the second matrix, with the same number of rows and columns as {@code a}
      * @return a new matrix where each element is {@code a[r][c] + b[r][c]}
-     * @throws IllegalArgumentException if the matrices differ in shape
+     * @throws IllegalArgumentException if either matrix is empty or ragged, or if the
+     *         matrices differ in shape
      */
     public static float[][] add(float[][] a, float[][] b) {
         return Dispatcher.add(a, b);
@@ -42,8 +44,8 @@ public class MatrixOps {
      * @param vector a vector of length {@code c}
      * @return a new vector of length {@code r}, where element {@code i} is the dot
      *         product of row {@code i} with {@code vector}
-     * @throws IllegalArgumentException if {@code vector.length} does not equal the
-     *         number of columns of {@code matrix}
+     * @throws IllegalArgumentException if {@code matrix} is empty or ragged, or if
+     *         {@code vector.length} does not equal its column count
      */
     public static float[] multiply(float[][] matrix, float[] vector) {
         return Dispatcher.multiply(matrix, vector);
@@ -55,8 +57,8 @@ public class MatrixOps {
      * @param a an {@code m x n} matrix
      * @param b an {@code n x p} matrix, whose row count equals the column count of {@code a}
      * @return a new {@code m x p} matrix
-     * @throws IllegalArgumentException if the column count of {@code a} does not equal
-     *         the row count of {@code b}
+     * @throws IllegalArgumentException if either matrix is empty or ragged, or if the
+     *         column count of {@code a} does not equal the row count of {@code b}
      */
     public static float[][] multiply(float[][] a, float[][] b) {
         return Dispatcher.multiply(a, b);
@@ -68,6 +70,7 @@ public class MatrixOps {
      *
      * @param matrix the matrix to transpose
      * @return a new transposed matrix
+     * @throws IllegalArgumentException if {@code matrix} is empty or ragged
      */
     public static float[][] transpose(float[][] matrix) {
         return Dispatcher.transpose(matrix);
@@ -91,7 +94,8 @@ public class MatrixOps {
      *
      * @param matrix a symmetric positive-definite {@code n x n} matrix
      * @return the lower-triangular factor {@code L}
-     * @throws IllegalArgumentException if {@code matrix} is empty or not square
+     * @throws IllegalArgumentException if {@code matrix} is empty, not square, not
+     *         symmetric, or contains a non-finite value
      * @throws ArithmeticException      if {@code matrix} is not positive definite
      */
     public static CholeskyDecomposition cholesky(float[][] matrix) {

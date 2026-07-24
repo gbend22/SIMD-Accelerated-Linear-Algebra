@@ -1,5 +1,6 @@
 package com.performance;
 
+import com.core.MatrixValidation;
 import com.decomp.LUDecomposition;
 
 /**
@@ -14,19 +15,6 @@ public class BlockedLuSweep {
 
     private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
 
-    private static void checkSquare(float[][] matrix) {
-        int n = matrix.length;
-        if (n == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be square, got " + n + " rows but a row of length " + row.length);
-            }
-        }
-    }
-
     /**
      * Factors a square matrix as {@code P * A = L * U} using blocked LU with partial
      * pivoting.
@@ -38,7 +26,7 @@ public class BlockedLuSweep {
      *         {@code blockSize} is less than {@code 1}
      */
     public LUDecomposition lu(float[][] matrix, int blockSize) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
         if (blockSize < 1) {
             throw new IllegalArgumentException("blockSize must be at least 1, got " + blockSize);
         }

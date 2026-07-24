@@ -1,6 +1,7 @@
 package com.simd;
 
 import com.core.DecompositionBackend;
+import com.core.MatrixValidation;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 import com.decomp.QRDecomposition;
@@ -26,27 +27,35 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     private final BlockedLuSweep blockedLu = new BlockedLuSweep();
     private final BlockedQrSweep blockedQr = new BlockedQrSweep();
+    private final boolean blockedKernelsEnabled;
 
-    private static void checkSquare(float[][] matrix) {
-        int n = matrix.length;
-        if (n == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be square, got " + n + " rows but a row of length " + row.length);
-            }
-        }
+    /** Creates the production backend, including its size-based blocked-kernel routing. */
+    public SimdDecompositionOps() {
+        this(true);
+    }
+
+    private SimdDecompositionOps(boolean blockedKernelsEnabled) {
+        this.blockedKernelsEnabled = blockedKernelsEnabled;
+    }
+
+    /**
+     * Creates a backend that always uses the unblocked SIMD algorithms. This is intended
+     * for controlled benchmark baselines; public matrix operations use the production
+     * backend returned by the ordinary constructor.
+     *
+     * @return an unblocked SIMD decomposition backend
+     */
+    public static SimdDecompositionOps unblocked() {
+        return new SimdDecompositionOps(false);
     }
 
     @Override
     public LUDecomposition lu(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
 
-        if (n >= LU_BLOCK_THRESHOLD) {
+        if (blockedKernelsEnabled && n >= LU_BLOCK_THRESHOLD) {
             return blockedLu.lu(matrix, LU_BLOCK_SIZE);
         }
 
@@ -124,7 +133,7 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public CholeskyDecomposition cholesky(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSymmetric(matrix, "matrix");
 
         int n = matrix.length;
         float[][] l = new float[n][n];
@@ -166,21 +175,12 @@ public class SimdDecompositionOps implements DecompositionBackend {
     @Override
     public QRDecomposition qr(float[][] matrix) {
         int m = matrix.length;
-        if (m == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        int n = matrix[0].length;
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be rectangular, got a row of length " + row.length + " expected " + n);
-            }
-        }
+        int n = MatrixValidation.requireRectangular(matrix, "matrix");
         if (m < n) {
             throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
         }
 
-        if (n >= QR_BLOCK_THRESHOLD) {
+        if (blockedKernelsEnabled && n >= QR_BLOCK_THRESHOLD) {
             return blockedQr.qr(matrix, QR_BLOCK_SIZE);
         }
 
@@ -354,7 +354,7 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public float[] solve(float[][] matrix, float[] b) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
         if (b.length != n) {
@@ -378,7 +378,7 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public float[][] inverse(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
 
@@ -414,7 +414,7 @@ public class SimdDecompositionOps implements DecompositionBackend {
 
     @Override
     public float determinant(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         LUDecomposition lu = lu(matrix);
         float[][] u = lu.getU();

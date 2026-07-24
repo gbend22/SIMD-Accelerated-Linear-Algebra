@@ -1,5 +1,6 @@
 package com.performance;
 
+import com.core.MatrixValidation;
 import com.decomp.CholeskyDecomposition;
 
 /**
@@ -16,19 +17,6 @@ public class BlockedCholeskySweep {
 
     private final RegisterTileSweepMatrixOps gemm = new RegisterTileSweepMatrixOps();
 
-    private static void checkSquare(float[][] matrix) {
-        int n = matrix.length;
-        if (n == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be square, got " + n + " rows but a row of length " + row.length);
-            }
-        }
-    }
-
     /**
      * Factors a symmetric positive-definite matrix as {@code A = L * Lᵀ} using blocked
      * Cholesky.
@@ -36,12 +24,13 @@ public class BlockedCholeskySweep {
      * @param matrix    a symmetric positive-definite {@code n x n} matrix
      * @param blockSize the panel width, in columns
      * @return the lower-triangular factor {@code L}
-     * @throws IllegalArgumentException if {@code matrix} is empty or not square, or if
+     * @throws IllegalArgumentException if {@code matrix} is empty, not square, not symmetric,
+     *         contains non-finite values, or if
      *         {@code blockSize} is less than {@code 1}
      * @throws ArithmeticException      if {@code matrix} is not positive definite
      */
     public CholeskyDecomposition cholesky(float[][] matrix, int blockSize) {
-        checkSquare(matrix);
+        MatrixValidation.requireSymmetric(matrix, "matrix");
         if (blockSize < 1) {
             throw new IllegalArgumentException("blockSize must be at least 1, got " + blockSize);
         }

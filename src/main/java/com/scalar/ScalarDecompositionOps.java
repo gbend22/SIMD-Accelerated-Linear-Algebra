@@ -1,6 +1,7 @@
 package com.scalar;
 
 import com.core.DecompositionBackend;
+import com.core.MatrixValidation;
 import com.decomp.CholeskyDecomposition;
 import com.decomp.LUDecomposition;
 import com.decomp.QRDecomposition;
@@ -12,22 +13,9 @@ import com.decomp.QRDecomposition;
  */
 public class ScalarDecompositionOps implements DecompositionBackend {
 
-    private static void checkSquare(float[][] matrix) {
-        int n = matrix.length;
-        if (n == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be square, got " + n + " rows but a row of length " + row.length);
-            }
-        }
-    }
-
     @Override
     public LUDecomposition lu(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
 
@@ -93,7 +81,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
 
     @Override
     public CholeskyDecomposition cholesky(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSymmetric(matrix, "matrix");
 
         int n = matrix.length;
         float[][] l = new float[n][n];
@@ -123,16 +111,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
     @Override
     public QRDecomposition qr(float[][] matrix) {
         int m = matrix.length;
-        if (m == 0) {
-            throw new IllegalArgumentException("Matrix must not be empty");
-        }
-        int n = matrix[0].length;
-        for (float[] row : matrix) {
-            if (row.length != n) {
-                throw new IllegalArgumentException(
-                        "Matrix must be rectangular, got a row of length " + row.length + " expected " + n);
-            }
-        }
+        int n = MatrixValidation.requireRectangular(matrix, "matrix");
         if (m < n) {
             throw new IllegalArgumentException("QR requires rows >= columns, got " + m + "x" + n);
         }
@@ -214,7 +193,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
 
     @Override
     public float[] solve(float[][] matrix, float[] b) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
         if (b.length != n) {
@@ -254,7 +233,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
 
     @Override
     public float[][] inverse(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         int n = matrix.length;
 
@@ -296,7 +275,7 @@ public class ScalarDecompositionOps implements DecompositionBackend {
 
     @Override
     public float determinant(float[][] matrix) {
-        checkSquare(matrix);
+        MatrixValidation.requireSquare(matrix, "matrix");
 
         LUDecomposition lu = lu(matrix);
         float[][] u = lu.getU();

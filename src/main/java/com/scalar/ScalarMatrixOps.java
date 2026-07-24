@@ -1,6 +1,7 @@
 package com.scalar;
 
 import com.core.MatrixBackend;
+import com.core.MatrixValidation;
 
 /**
  * Scalar (plain-loop) implementation of {@link MatrixBackend}. Serves as the
@@ -9,17 +10,10 @@ import com.core.MatrixBackend;
  */
 public class ScalarMatrixOps implements MatrixBackend {
 
-    private static void checkSameDimensions(float[][] a, float[][] b) {
-
-        if (a.length != b.length || a[0].length != b[0].length) {
-            throw new IllegalArgumentException("Matrix dimensions must match");
-        }
-    }
-
     @Override
     public float[] multiply(float[][] matrix, float[] vector) {
         int rows = matrix.length;
-        int cols = matrix[0].length;
+        int cols = MatrixValidation.requireRectangular(matrix, "matrix");
 
         if (vector.length != cols) {
             throw new IllegalArgumentException(
@@ -45,10 +39,8 @@ public class ScalarMatrixOps implements MatrixBackend {
 
     @Override
     public float[][] add(float[][] a, float[][] b) {
-        checkSameDimensions(a, b);
-
         int rows = a.length;
-        int cols = a[0].length;
+        int cols = MatrixValidation.requireSameShape(a, b);
 
         float[][] result = new float[rows][cols];
 
@@ -64,7 +56,7 @@ public class ScalarMatrixOps implements MatrixBackend {
     @Override
     public float[][] transpose(float[][] matrix) {
         int rows = matrix.length;
-        int cols = matrix[0].length;
+        int cols = MatrixValidation.requireRectangular(matrix, "matrix");
 
         float[][] result = new float[cols][rows];
 
@@ -79,15 +71,15 @@ public class ScalarMatrixOps implements MatrixBackend {
 
     @Override
     public float[][] multiply(float[][] a, float[][] b) {
-        if (a[0].length != b.length) {
+        int inner = MatrixValidation.requireRectangular(a, "a");
+        int cols = MatrixValidation.requireRectangular(b, "b");
+        if (inner != b.length) {
             throw new IllegalArgumentException(
                     "Matrix dimensions do not allow multiplication"
             );
         }
 
         int rows = a.length;
-        int cols = b[0].length;
-        int inner = b.length;
 
         float[][] result = new float[rows][cols];
 

@@ -271,4 +271,27 @@ class DecompositionBackendParityTest {
         assertThrows(IllegalArgumentException.class, () -> ops.inverse(a));
         assertThrows(IllegalArgumentException.class, () -> ops.determinant(a));
     }
+    @ParameterizedTest
+    @MethodSource("backends")
+    void cholesky_nonSymmetric_throws(DecompositionBackend ops) {
+        float[][] nonSymmetric = {{4, 100}, {2, 3}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.cholesky(nonSymmetric));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void cholesky_nonFinite_throws(DecompositionBackend ops) {
+        float[][] nonFinite = {{4, Float.NaN}, {Float.NaN, 3}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.cholesky(nonFinite));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void qr_raggedMatrix_throws(DecompositionBackend ops) {
+        float[][] ragged = {{1, 2}, {3}};
+
+        assertThrows(IllegalArgumentException.class, () -> ops.qr(ragged));
+    }
 }
