@@ -1,5 +1,6 @@
 package com;
 
+import com.baseline.NaiveSimdMatrixOps;
 import com.performance.CacheBlockedTiledSimdMatrixOps;
 import com.performance.ParallelCacheBlockedTiledSimdMatrixOps;
 import com.performance.ParallelSimdMatrixOps;
@@ -36,7 +37,8 @@ public class ParallelMatrixMultiplyBenchmark {
     public int size;
 
     private final ScalarMatrixOps scalar = new ScalarMatrixOps();
-    private final SimdMatrixOps simd = new SimdMatrixOps();
+    private final NaiveSimdMatrixOps naive = new NaiveSimdMatrixOps();
+    private final SimdMatrixOps productionRegisterTiled = new SimdMatrixOps();
     private final TiledSimdMatrixOps tiled = new TiledSimdMatrixOps();
     private final CacheBlockedTiledSimdMatrixOps cacheBlocked = new CacheBlockedTiledSimdMatrixOps();
     private final ParallelSimdMatrixOps parallel = new ParallelSimdMatrixOps();
@@ -48,6 +50,7 @@ public class ParallelMatrixMultiplyBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 
@@ -68,12 +71,17 @@ public class ParallelMatrixMultiplyBenchmark {
     }
 
     @Benchmark
-    public void simd_multiply(Blackhole bh) {
-        bh.consume(simd.multiply(a, b));
+    public void naiveSimd_multiply(Blackhole bh) {
+        bh.consume(naive.multiply(a, b));
     }
 
     @Benchmark
-    public void tiledSimd_multiply(Blackhole bh) {
+    public void productionRegisterTiled_multiply(Blackhole bh) {
+        bh.consume(productionRegisterTiled.multiply(a, b));
+    }
+
+    @Benchmark
+    public void registerTiledMr4_multiply(Blackhole bh) {
         bh.consume(tiled.multiply(a, b));
     }
 

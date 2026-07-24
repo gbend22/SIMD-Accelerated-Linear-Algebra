@@ -34,12 +34,13 @@ public class BlockedQrBenchmark {
     public int blockSize;
 
     private final BlockedQrSweep blocked = new BlockedQrSweep();
-    private final SimdDecompositionOps simd = new SimdDecompositionOps();
+    private final SimdDecompositionOps unblocked = SimdDecompositionOps.unblocked();
 
     private float[][] a;
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 
@@ -59,7 +60,7 @@ public class BlockedQrBenchmark {
 
     @Benchmark
     public void unblocked_simd_qr(Blackhole bh) {
-        bh.consume(simd.qr(a));
+        bh.consume(unblocked.qr(a));
     }
 
     public static void main(String[] args)

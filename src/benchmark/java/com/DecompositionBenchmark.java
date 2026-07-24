@@ -13,8 +13,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-@BenchmarkMode(Mode.Throughput)
-@OutputTimeUnit(TimeUnit.MICROSECONDS)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Thread)
 @Fork(
         value = 2,
@@ -38,6 +38,7 @@ public class DecompositionBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 

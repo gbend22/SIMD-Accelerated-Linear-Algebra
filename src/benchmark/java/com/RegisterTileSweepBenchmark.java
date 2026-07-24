@@ -39,6 +39,7 @@ public class RegisterTileSweepBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 

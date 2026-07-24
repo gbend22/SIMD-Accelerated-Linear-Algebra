@@ -34,12 +34,13 @@ public class BlockedCholeskyBenchmark {
     public int blockSize;
 
     private final BlockedCholeskySweep blocked = new BlockedCholeskySweep();
-    private final SimdDecompositionOps simd = new SimdDecompositionOps();
+    private final SimdDecompositionOps unblocked = SimdDecompositionOps.unblocked();
 
     private float[][] a;
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 
@@ -62,7 +63,7 @@ public class BlockedCholeskyBenchmark {
 
     @Benchmark
     public void unblocked_simd_cholesky(Blackhole bh) {
-        bh.consume(simd.cholesky(a));
+        bh.consume(unblocked.cholesky(a));
     }
 
     public static void main(String[] args)

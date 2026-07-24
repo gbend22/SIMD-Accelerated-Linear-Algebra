@@ -34,12 +34,13 @@ public class BlockedLuBenchmark {
     public int blockSize;
 
     private final BlockedLuSweep blocked = new BlockedLuSweep();
-    private final SimdDecompositionOps simd = new SimdDecompositionOps();
+    private final SimdDecompositionOps unblocked = SimdDecompositionOps.unblocked();
 
     private float[][] a;
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
 
         Random rng = new Random(42);
 
@@ -60,7 +61,7 @@ public class BlockedLuBenchmark {
 
     @Benchmark
     public void unblocked_simd_lu(Blackhole bh) {
-        bh.consume(simd.lu(a));
+        bh.consume(unblocked.lu(a));
     }
 
     public static void main(String[] args)

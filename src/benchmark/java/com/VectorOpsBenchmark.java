@@ -37,6 +37,7 @@ public class VectorOpsBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
+        BenchmarkEnvironment.verifyExpectedVectorWidth();
         Random rng = new Random(42);
         a = new float[size];
         b = new float[size];
