@@ -94,6 +94,16 @@ class KMeansTest {
     }
 
     @Test
+    void fit_singleCluster_updatesCentroidToDatasetMean() {
+        KMeans model = new KMeans(1);
+
+        model.fit(new float[][]{{0f}, {10f}});
+
+        assertEquals(5f, model.centroids()[0][0], DELTA);
+        assertTrue(model.iterations() >= 1);
+    }
+
+    @Test
     void fit_isReproducibleWithFixedSeed() {
         float[][] x = twoClusters();
 

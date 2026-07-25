@@ -2,6 +2,7 @@ package com.applications;
 
 import com.vector.VectorOps;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -119,6 +120,7 @@ public class KMeans {
 
         centroids = initializeCentroids(x);
         assignments = new int[x.length];
+        Arrays.fill(assignments, -1);
 
         for (iterations = 0; iterations < maxIterations; iterations++) {
             boolean changed = assignPoints(x);
