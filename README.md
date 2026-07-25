@@ -22,7 +22,8 @@ both engineering completeness and evidence-based evaluation.
 
 The current `1.0-SNAPSHOT` version denotes pre-release maturity, not a throwaway prototype.
 It can be built, tested, installed into a local Maven repository, used through its public
-facades, and evaluated through the included benchmark artifact. Publication to Maven
+facades, and evaluated through the included benchmark profile and artifact. Publication to
+Maven
 Central remains a release and distribution step.
 
 ## Project objectives
@@ -34,7 +35,7 @@ Central remains a release and distribution step.
 - validate inputs and report invalid shapes, singular systems, and invalid decompositions
   predictably;
 - keep the public facades stateless and return immutable decomposition result objects;
-- package the library, source code, Javadocs, and benchmark harness as separate artifacts;
+- keep the publication-oriented library build separate from the opt-in benchmark build;
 - demonstrate reuse through k-means, k-nearest neighbors, and linear regression;
 - maintain high automated test coverage across scalar, SIMD, blocked, and parallel code.
 
@@ -58,7 +59,8 @@ The experimental component addresses three questions:
 - LU with partial pivoting, Householder QR, and Cholesky decomposition;
 - blocked LU and QR implementations with forced-unblocked experimental controls;
 - centralized validation for matrix shape, symmetry, and finite values;
-- 577 automated tests and a reproducible JMH evaluation on AVX2 and AVX-512.
+- 580 library tests, 2 benchmark-profile tests, and a reproducible JMH evaluation on
+  AVX2 and AVX-512.
 
 ## Capabilities
 
@@ -88,24 +90,31 @@ hardware is required to reproduce the corresponding benchmark profile.
 
 ## Build and installation
 
-Run the complete build from the repository root:
+Run the publication-oriented library build from the repository root:
 
 ```text
 mvn clean package
 ```
 
-The build runs the tests and produces four independently useful artifacts:
+This default build runs 580 tests and produces three artifacts:
 
 ```text
 target/simd-linalg-1.0-SNAPSHOT.jar
 target/simd-linalg-1.0-SNAPSHOT-sources.jar
 target/simd-linalg-1.0-SNAPSHOT-javadoc.jar
-target/simd-linalg-1.0-SNAPSHOT-benchmarks.jar
 ```
 
-The main JAR is the reusable library. The source and Javadoc JARs support inspection and
-API integration, while the executable benchmark JAR keeps performance evaluation separate
-from ordinary library use.
+The default main JAR contains no benchmark, JMH, EJML, or Commons Math classes, and those
+libraries are not consumer dependencies. The benchmark sources remain part of the bachelor
+project and are activated explicitly:
+
+```text
+mvn -Pbenchmarks clean package
+```
+
+That profile runs 582 tests, including 2 benchmark-baseline tests, and additionally creates
+`target/simd-linalg-1.0-SNAPSHOT-benchmarks.jar`. Use the default build, without the
+`benchmarks` profile, for local installation or future Maven publication.
 
 To install the library in the local Maven repository:
 
@@ -275,10 +284,11 @@ isolated microbenchmark kernels.
 
 ## Correctness and testing
 
-The current test suite contains 577 JUnit 5 tests. A fresh run completed with 577 passed,
-0 failed, 0 errors, and 0 skipped. The current JaCoCo report gives 96.5% line coverage and
-96.0% instruction coverage for the library classes. Benchmark and benchmark-only baseline
-classes are excluded from the coverage calculation.
+The default library suite contains 580 JUnit 5 tests. A fresh JDK 24 run completed with 580
+passed, 0 failed, 0 errors, and 0 skipped. The `benchmarks` profile adds 2 tests for its
+benchmark-only baseline, for 582 passing tests in that build. JaCoCo 0.8.13 reports 96.55%
+line coverage, 96.04% instruction coverage, and 93.98% branch coverage for the library
+classes. Benchmark and benchmark-only baseline classes are excluded from coverage.
 
 ```text
 mvn test
@@ -385,12 +395,14 @@ scalar matrix multiplication baseline.
 | 128 | 20.48x | 32.90x | 1.50x |
 | 256 | 47.17x | 64.92x | 1.35x |
 | 512 | 60.46x | 86.12x | 1.41x |
-| 1024 | 57.95x | 98.97x | 1.45x |
+| 1024 | 57.95x | about 99x | 1.45x |
 
 These values combine SIMD, improved cache locality, register reuse, and seven-way common
-pool parallelism. They must not be presented as SIMD-only gains. In the single-threaded
-production register-tiled kernel, AVX-512 improved absolute throughput over AVX2 by about
-1.78x to 1.91x across the larger matrix sizes.
+pool parallelism. They must not be presented as SIMD-only gains. The roughly 99x point
+ratio also has substantial uncertainty: the optimized and scalar estimates have relative
+errors of about 8.7% and 17.4%, respectively, so two-decimal precision would be misleading.
+In the single-threaded production register-tiled kernel, AVX-512 improved absolute
+throughput over AVX2 by about 1.78x to 1.91x across the larger matrix sizes.
 
 The register-tile sweep selected eight rows as the strongest tested configuration. At
 size 1024, the eight-row kernel was 4.10x faster than the one-row SIMD baseline under
@@ -452,7 +464,7 @@ The main conclusions from this benchmark snapshot are:
 Build the executable benchmark JAR first:
 
 ```text
-mvn clean package
+mvn -Pbenchmarks clean package
 ```
 
 Verify the vector width before collecting measurements.
@@ -503,7 +515,8 @@ src/main/java/com/
   vector/          public vector facade
 
 src/test/java/      JUnit 5 tests
-src/benchmark/java/ JMH benchmarks and benchmark-only baselines
+src/benchmark/java/     JMH benchmarks and benchmark-only baselines
+src/benchmarkTest/java/ tests activated only by the benchmark profile
 benchmark-results/  raw JDK 24 AVX2 and AVX-512 JSON measurements
 ```
 
