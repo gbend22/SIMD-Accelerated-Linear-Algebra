@@ -110,7 +110,7 @@ public class ScalarVectorOps implements VectorBackend {
 
         float m = a[0];
         for (int i = 1; i < a.length; i++) {
-            if (a[i] < m) m = a[i];
+            m = Math.min(m, a[i]);
         }
         return m;
     }
@@ -121,7 +121,7 @@ public class ScalarVectorOps implements VectorBackend {
 
         float m = a[0];
         for (int i = 1; i < a.length; i++) {
-            if (a[i] > m) m = a[i];
+            m = Math.max(m, a[i]);
         }
         return m;
     }
@@ -189,6 +189,12 @@ public class ScalarVectorOps implements VectorBackend {
     @Override
     public int argmax(float[] a) {
         if (a.length == 0) throw new IllegalArgumentException("Empty array");
+
+        for (int i = 0; i < a.length; i++) {
+            if (Float.isNaN(a[i])) {
+                return i;
+            }
+        }
 
         int idx = 0;
         float m = a[0];

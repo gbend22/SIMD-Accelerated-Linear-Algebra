@@ -122,7 +122,8 @@ public class VectorOps {
     }
 
     /**
-     * Returns the smallest element of a vector.
+     * Returns the smallest element of a vector. If the vector contains {@code NaN},
+     * the result is {@code NaN}.
      *
      * @param a the vector
      * @return the minimum element
@@ -133,7 +134,8 @@ public class VectorOps {
     }
 
     /**
-     * Returns the largest element of a vector.
+     * Returns the largest element of a vector. If the vector contains {@code NaN},
+     * the result is {@code NaN}.
      *
      * @param a the vector
      * @return the maximum element
@@ -213,8 +215,9 @@ public class VectorOps {
     }
 
     /**
-     * Returns the index of the largest element of a vector. If several elements share
-     * the maximum value, the index of the first one is returned.
+     * Returns the index of the largest element of a vector. If the vector contains
+     * {@code NaN}, the index of the first {@code NaN} is returned. Otherwise, if several
+     * elements share the maximum value, the index of the first one is returned.
      *
      * @param a the vector
      * @return the index of the maximum element

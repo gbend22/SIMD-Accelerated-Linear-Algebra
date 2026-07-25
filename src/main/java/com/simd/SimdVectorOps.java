@@ -282,6 +282,12 @@ public class SimdVectorOps implements VectorBackend {
     public int argmax(float[] a) {
         checkNonEmpty(a);
 
+        for (int i = 0; i < a.length; i++) {
+            if (Float.isNaN(a[i])) {
+                return i;
+            }
+        }
+
         float maxVal = max(a);
         for (int i = 0; i < a.length; i++) {
             if (a[i] == maxVal) return i;

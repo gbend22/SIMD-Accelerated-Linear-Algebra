@@ -129,6 +129,14 @@ class VectorBackendParityTest {
 
     @ParameterizedTest
     @MethodSource("backends")
+    void minMax_withNaN_propagatesNaN(VectorBackend ops) {
+        float[] a = {3, -1, Float.NaN, 5};
+        assertTrue(Float.isNaN(ops.min(a)));
+        assertTrue(Float.isNaN(ops.max(a)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
     void min_empty_throws(VectorBackend ops) {
         assertThrows(IllegalArgumentException.class, () -> ops.min(new float[]{}));
     }
@@ -206,6 +214,12 @@ class VectorBackendParityTest {
     void argmax(VectorBackend ops) {
         float[] a = {3, -1, 5, 2, -7, 8, 0, 4, 6, 1, -2, 9, 3, 5, -4, 7, 2, 8, 1};
         assertEquals(11, ops.argmax(a));
+    }
+
+    @ParameterizedTest
+    @MethodSource("backends")
+    void argmax_withNaN_returnsFirstNaNIndex(VectorBackend ops) {
+        assertEquals(2, ops.argmax(new float[]{3, -1, Float.NaN, 5, Float.NaN}));
     }
 
     @ParameterizedTest
